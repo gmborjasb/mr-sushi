@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout | Mr. Sushi</title>
+    <link
+      rel="stylesheet"
+      href="https://webcdn.getjusto.com/assets/root-DOLmx-r7.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://webcdn.getjusto.com/assets/index-D4WGu668.css"
+    />
+    <link rel="stylesheet" href="src/css/site-nav.css?v=20260704-1" />
+    <link rel="stylesheet" href="src/css/checkout-theme.css?v=20260705-1" />
+  </head>
+  <body>
+    <header id="header" class="headerContainer z-10 border-b bg-navbar text-navbar-foreground">
+      <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4 h-16">
+        <nav class="hidden font-medium md:flex flex-row items-center gap-5 text-sm flex-1">
+          <a class="flex-shrink-0 navbarLogoLink" href="index.html">
+            <img
+              src="https://tofuu.getjusto.com/orioneat-local/resized2/B5ox5RFJSXBEcn3PL-x-300.webp"
+              srcset="
+                https://tofuu.getjusto.com/orioneat-local/resized2/MR2Dg2hzvTxDe8Bbm-x-100.webp 100w,
+                https://tofuu.getjusto.com/orioneat-local/resized2/B5ox5RFJSXBEcn3PL-x-300.webp 300w,
+                https://tofuu.getjusto.com/orioneat-local/resized2/MAkEBqYdvbC89vrw5-x-375.webp 800w
+              "
+              alt="Logo de Mr. Sushi Perú"
+              class="h-12 navbarLogoImage"
+            />
+          </a>
+          <div class="navbarLinksContainer flex flex-row items-center gap-5 lg:gap-6">
+            <a class="navbarLink transition-colors" href="index.html">INICIO</a>
+            <a class="navbarLink transition-colors text-navbar-active" href="pedir.html">¡PEDIR AQUÍ!</a>
+            <a class="navbarLink transition-colors" href="locales.html">LOCALES &amp; COBERTURA</a>
+          </div>
+        </nav>
+        <div class="flex-1 flex justify-center md:hidden">
+          <a class="navbarLogoLink" href="index.html">
+            <img
+              src="https://tofuu.getjusto.com/orioneat-local/resized2/B5ox5RFJSXBEcn3PL-x-300.webp"
+              alt="Logo de Mr. Sushi Perú"
+              class="h-12 navbarLogoImage"
+            />
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="checkout-main">
+      <div class="checkout-shell">
+        <div class="checkout-topbar">
+          <a class="checkout-backlink" href="pedir.html">← Volver a pedir</a>
+          <h1>Finaliza tu pedido</h1>
+        </div>
+
+        <div class="checkout-layout">
+          <section class="checkout-content">
+            <article class="checkout-card">
+              <h2>Contacto</h2>
+              <p class="checkout-section-copy">Elige si usamos el contacto de tu cuenta o si deseas ingresar uno nuevo para este pedido.</p>
+              <div id="checkout-contact" class="checkout-contact"></div>
+            </article>
+
+            <article class="checkout-card">
+              <h2>Entrega</h2>
+              <p>¿Cómo quieres tu pedido?</p>
+              <div id="checkout-fulfillment"></div>
+            </article>
+
+            <article class="checkout-card">
+              <h2>Pago</h2>
+              <p class="checkout-section-copy">Medios de pago</p>
+              <div id="checkout-payment-methods" class="checkout-payment-methods">
+                <button class="checkout-payment-method is-active" type="button" data-payment-method="kushki" data-payment-label="Tarjeta" data-payment-description="Paga con tarjeta de crédito o débito.">
+                  <img src="tarjeta de credito y debito.png" alt="Tarjeta de crédito y débito" class="checkout-payment-logo" />
+                  <div class="checkout-payment-copy">
+                    <strong>Paga con tarjeta de crédito o débito.</strong>
+                  </div>
+                </button>
+                <button class="checkout-payment-method" type="button" data-payment-method="pagoEfectivoPE" data-payment-label="PagoEfectivo" data-payment-description="PagoEfectivo">
+                  <img src="pagoefectivo.png" alt="PagoEfectivo" class="checkout-payment-logo" />
+                  <div class="checkout-payment-copy">
+                    <strong>PagoEfectivo</strong>
+                  </div>
+                </button>
+                <button class="checkout-payment-method" type="button" data-payment-method="niubizButtonPE" data-payment-label="Niubiz (Yape)" data-payment-description="Niubiz (Yape)">
+                  <img src="yape.jpeg" alt="Niubiz Yape" class="checkout-payment-logo" />
+                  <div class="checkout-payment-copy">
+                    <strong>Niubiz (Yape)</strong>
+                  </div>
+                </button>
+              </div>
+            </article>
+          </section>
+
+          <aside class="checkout-summary">
+            <div id="checkout-items" class="checkout-items"></div>
+
+            <section class="checkout-neki-discounts" aria-labelledby="checkout-neki-title">
+              <button id="checkout-neki-wallet-toggle" class="checkout-neki-wallet-toggle" type="button" aria-expanded="false">
+                <span>Billetera</span>
+                <strong id="checkout-neki-wallet-summary">0 Neki Puntos</strong>
+              </button>
+            </section>
+
+            <div class="checkout-totals">
+              <div>
+                <span>Total Productos</span>
+                <strong id="checkout-products-total">S/ 0.00</strong>
+              </div>
+              <div>
+                <span>Descuentos</span>
+                <strong id="checkout-discount-total">- S/ 0.00</strong>
+              </div>
+              <div class="checkout-total-pay">
+                <span>Total a pagar</span>
+                <strong id="checkout-grand-total">S/ 0.00</strong>
+              </div>
+            </div>
+
+            <div class="checkout-paying-with">
+              <img id="checkout-payment-selected-logo" src="tarjeta de credito y debito.png" alt="Medio de pago seleccionado" />
+              <div>
+                <span>Pagando con</span>
+                <strong id="checkout-payment-selected-title">Paga con tarjeta de crédito o débito.</strong>
+                <p id="checkout-payment-selected-description">Paga con tarjeta de crédito o débito.</p>
+              </div>
+            </div>
+
+            <p id="checkout-points" class="checkout-points">Con esta compra acumularás 0.0 Neki Puntos</p>
+            <p id="checkout-status" class="checkout-status">Por favor completa los campos requeridos en: Contacto</p>
+            <button id="checkout-pay-button" class="checkout-pay-button" type="button">Pagar ahora</button>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <div id="checkout-neki-wallet-overlay" class="checkout-neki-wallet-overlay" hidden></div>
+    <section id="checkout-neki-wallet-panel" class="checkout-neki-wallet-panel" role="dialog" aria-modal="true" aria-labelledby="checkout-neki-title" hidden>
+      <div class="checkout-neki-wallet-head">
+        <h2 id="checkout-neki-title">Neki puntos de descuento</h2>
+        <button id="checkout-neki-wallet-close" type="button" aria-label="Cerrar billetera">Cerrar</button>
+      </div>
+      <p id="checkout-neki-balance">Tienes 0 Neki Puntos disponibles.</p>
+      <div id="checkout-neki-options" class="checkout-neki-options"></div>
+    </section>
+
+    <script src="src/js/api-config.js?v=20260705-1"></script>
+    <script type="module" src="src/js/checkout-page.js?v=20260705-3"></script>
+  </body>
+</html>

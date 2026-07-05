@@ -1,0 +1,35 @@
+org: francishuerta
+service: mrsushi-ms-sedes
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  httpApi:
+    cors: true
+  iam:
+    role: arn:aws:iam::481849631317:role/LabRole
+  environment:
+    SEDES_TABLE: MrSushiSedes
+
+functions:
+  listarSedes:
+    handler: handler.listarSedes
+    events:
+      - httpApi:
+          path: /sedes
+          method: GET
+
+resources:
+  Resources:
+    SedesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MrSushiSedes
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: sedeId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sedeId
+            KeyType: HASH

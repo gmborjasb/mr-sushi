@@ -1,0 +1,51 @@
+org: francishuerta
+service: mrsushi-ms-flujo-trabajo
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  httpApi:
+    cors: true
+  iam:
+    role: arn:aws:iam::481849631317:role/LabRole
+  environment:
+    FLUJO_TABLE: MrSushiFlujoTrabajo
+    PEDIDOS_TABLE: MrSushiPedidos
+    JWT_SECRET: ${env:JWT_SECRET, 'mrsushi-dev-secret-v2-2026'}
+
+functions:
+  guardarTaskToken:
+    handler: handler.guardarTaskToken
+
+  completarEtapa:
+    handler: handler.completarEtapa
+    events:
+      - httpApi:
+          path: /flujo-trabajo/completar
+          method: POST
+
+  obtenerFlujo:
+    handler: handler.obtenerFlujo
+    events:
+      - httpApi:
+          path: /flujo-trabajo/{pedidoId}
+          method: GET
+
+resources:
+  Resources:
+    FlujoTrabajoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MrSushiFlujoTrabajo
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: pedidoId
+            AttributeType: S
+          - AttributeName: step
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pedidoId
+            KeyType: HASH
+          - AttributeName: step
+            KeyType: RANGE

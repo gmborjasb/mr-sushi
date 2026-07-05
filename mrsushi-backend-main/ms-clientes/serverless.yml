@@ -1,0 +1,101 @@
+org: francishuerta
+service: mrsushi-ms-clientes
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  httpApi:
+    cors: true
+  iam:
+    role: arn:aws:iam::481849631317:role/LabRole
+  environment:
+    CLIENTES_TABLE: MrSushiClientes
+    CLIENTE_LOCKS_TABLE: MrSushiClienteEmailLocks
+    JWT_SECRET: ${env:JWT_SECRET, 'mrsushi-dev-secret-v2-2026'}
+
+functions:
+  registrarCliente:
+    handler: handler.registrarCliente
+    events:
+      - httpApi:
+          path: /clientes/register
+          method: POST
+
+  loginCliente:
+    handler: handler.loginCliente
+    events:
+      - httpApi:
+          path: /clientes/login
+          method: POST
+
+  obtenerPerfil:
+    handler: handler.obtenerPerfil
+    events:
+      - httpApi:
+          path: /clientes/me
+          method: GET
+
+  actualizarPerfil:
+    handler: handler.actualizarPerfil
+    events:
+      - httpApi:
+          path: /clientes/me
+          method: PATCH
+
+  agregarDireccion:
+    handler: handler.agregarDireccion
+    events:
+      - httpApi:
+          path: /clientes/me/direcciones
+          method: POST
+
+  listarDirecciones:
+    handler: handler.listarDirecciones
+    events:
+      - httpApi:
+          path: /clientes/me/direcciones
+          method: GET
+
+  obtenerPuntos:
+    handler: handler.obtenerPuntos
+    events:
+      - httpApi:
+          path: /clientes/me/neki-puntos
+          method: GET
+
+  ajustarPuntos:
+    handler: handler.ajustarPuntos
+    events:
+      - httpApi:
+          path: /clientes/{clienteId}/neki-puntos
+          method: PATCH
+
+resources:
+  Resources:
+    ClientesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MrSushiClientes
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: clienteId
+            AttributeType: S
+          - AttributeName: itemType
+            AttributeType: S
+        KeySchema:
+          - AttributeName: clienteId
+            KeyType: HASH
+          - AttributeName: itemType
+            KeyType: RANGE
+    ClienteEmailLocksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MrSushiClienteEmailLocks
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH

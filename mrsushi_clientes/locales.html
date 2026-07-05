@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es-PE" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, viewport-fit=cover"
+    />
+    <title>Mr. Sushi | Locales & Cobertura</title>
+    <meta
+      name="description"
+      content="Encuentra el local de Mr. Sushi más cercano y revisa su cobertura de despacho en Lima."
+    />
+    <link rel="canonical" href="locales.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link
+      rel="stylesheet"
+      href="https://webcdn.getjusto.com/assets/root-DOLmx-r7.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://webcdn.getjusto.com/assets/index-D4WGu668.css"
+    />
+    <link rel="stylesheet" href="src/css/site-nav.css?v=20260703-2" />
+    <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css?v=20260703-2" />
+    <style>
+      @import url("https://tofuu.getjusto.com/orioneat-prod/MintGrotesk-NormalRegular.css");
+      @import url("https://tofuu.getjusto.com/orioneat-prod/Silverspoon-CondensedBold.css");
+
+      :root {
+        color-scheme: dark;
+        --bg: #050505;
+        --panel: rgba(17, 17, 17, 0.92);
+        --panel-2: rgba(28, 28, 28, 0.92);
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f7f2ea;
+        --muted: rgba(247, 242, 234, 0.7);
+        --accent: #fb2301;
+        --accent-soft: rgba(251, 35, 1, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "MintGrotesk-NormalRegular", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(251, 35, 1, 0.14), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.06), transparent 22%),
+          #000;
+      }
+
+      h1,
+      h2,
+      h3,
+      .appTitle {
+        font-family: "Silverspoon-CondensedBold", sans-serif;
+        letter-spacing: 0.04em;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: min(1180px, calc(100% - 2rem));
+        margin: 0 auto;
+      }
+
+      #header.headerContainer {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        backdrop-filter: blur(18px);
+        background: rgba(8, 8, 8, 0.82);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .header-shell {
+        width: min(1280px, calc(100% - 2rem));
+        min-height: 64px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .navbarLogoLink {
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .navbarLogoImage {
+        width: auto;
+        height: 48px;
+        display: block;
+      }
+
+      .navbarLinksContainer {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+      }
+
+      .navbarLink {
+        text-decoration: none;
+        color: rgba(247, 242, 234, 0.72);
+        font-size: 0.95rem;
+        letter-spacing: 0;
+        transition: color 160ms ease;
+      }
+
+      .navbarLink:hover {
+        color: #fff;
+      }
+
+      .navbarLink.text-navbar-active {
+        color: var(--accent) !important;
+      }
+
+      .header-spacer {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+      }
+
+      .menu-toggle {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        border-radius: 999px;
+        cursor: pointer;
+      }
+
+      .menu-toggle svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .mobile-menu {
+        display: none;
+        width: min(1280px, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 0 0 1rem;
+      }
+
+      .mobile-menu[hidden] {
+        display: none !important;
+      }
+
+      .mobile-menu a {
+        display: block;
+        text-decoration: none;
+        padding: 0.95rem 0;
+        border-bottom: 1px solid var(--line);
+        color: rgba(247, 242, 234, 0.78);
+      }
+
+      .mobile-menu a[aria-current="page"] {
+        color: var(--accent);
+      }
+
+      .hero {
+        padding: 3rem 0 1.5rem;
+      }
+
+      .hero__card {
+        display: block;
+        padding: 1.4rem 1.6rem;
+        border-radius: 28px;
+        border: 1px solid var(--line);
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
+        line-height: 1;
+        text-align: center;
+      }
+
+      .hero__note {
+        display: none;
+      }
+
+      .locator {
+        padding: 0 0 5rem;
+      }
+
+      .locator__layout {
+        display: grid;
+        gap: 1.25rem;
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.8fr) minmax(320px, 1.2fr);
+        gap: 1.25rem;
+        align-items: start;
+      }
+
+      .map-panel,
+      .sidebar-panel,
+      .search-panel,
+      .stores-panel {
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: transparent;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+      }
+
+      .map-panel {
+        max-width: 980px;
+        width: 100%;
+        margin: 0 auto;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .map-panel__head,
+      .sidebar-panel__head,
+      .search-panel__head,
+      .stores-panel__head {
+        padding: 1rem 1.15rem 0.85rem;
+        border-bottom: 1px solid var(--line);
+        background: transparent;
+      }
+
+      .map-panel__head {
+        padding: 0 0 0.85rem;
+        border-bottom: 0;
+      }
+
+      .map-panel__head span,
+      .sidebar-panel__head p,
+      .search-panel__head p,
+      .stores-panel__head p,
+      .status {
+        color: var(--muted);
+      }
+
+      .map-wrap {
+        padding: 0;
+      }
+
+      #stores-map {
+        height: min(72vh, 720px);
+        min-height: 420px;
+        width: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.92);
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .leaflet-container {
+        background: transparent;
+        font-family: "MintGrotesk-NormalRegular", sans-serif;
+      }
+
+      .leaflet-popup-content-wrapper,
+      .leaflet-popup-tip {
+        background: #111;
+        color: var(--text);
+      }
+
+      .leaflet-control-attribution {
+        font-size: 10px;
+      }
+
+      .popup-card strong {
+        display: block;
+        margin-bottom: 0.35rem;
+      }
+
+      .popup-card p {
+        margin: 0 0 0.5rem;
+        color: var(--muted);
+      }
+
+      .store-marker {
+        background: transparent;
+        border: 0;
+      }
+
+      .store-pin {
+        position: relative;
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+      }
+
+      .store-pin__dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--accent);
+        border: 3px solid #fff;
+        box-shadow: 0 8px 24px rgba(251, 35, 1, 0.55);
+      }
+
+      .store-pin__label {
+        position: absolute;
+        bottom: -2px;
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        background: #fff;
+        color: #000;
+        font-size: 0.75rem;
+        font-weight: 800;
+      }
+
+      .sidebar-panel__body,
+      .search-panel__body,
+      .stores-panel__body {
+        padding: 0.9rem;
+      }
+
+      .sidebar-panel__body h2,
+      .search-panel__body h2,
+      .stores-panel__body h2 {
+        margin: 0 0 0.55rem;
+        font-size: clamp(1.45rem, 3vw, 2rem);
+        line-height: 1;
+      }
+
+      .sidebar-panel__body p,
+      .search-panel__body p,
+      .stores-panel__body p {
+        margin: 0;
+        font-size: 0.95rem;
+      }
+
+      .address-form {
+        margin-top: 1.3rem;
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .address-form__row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 0.75rem;
+      }
+
+      .address-form input {
+        width: 100%;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        padding: 0.9rem 1rem;
+        outline: none;
+      }
+
+      .address-form input::placeholder {
+        color: rgba(247, 242, 234, 0.42);
+      }
+
+      .address-form button {
+        border: 0;
+        border-radius: 16px;
+        padding: 0 1.1rem;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .address-form button[type="submit"],
+      .store-card__button {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .ghost-button {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+
+      .status {
+        min-height: 1.3rem;
+        font-size: 0.88rem;
+      }
+
+      .stores-list {
+        margin-top: 0.8rem;
+        display: grid;
+        gap: 0.72rem;
+      }
+
+      .stores-panel__body > .store-card:first-child {
+        margin-top: 1rem;
+      }
+
+      .store-card {
+        padding: 0.82rem;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: transparent;
+        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      }
+
+      .store-card.is-active,
+      .store-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(251, 35, 1, 0.45);
+        background: transparent;
+      }
+
+      .store-card__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #ffcfbf;
+        background: var(--accent-soft);
+        border: 1px solid rgba(251, 35, 1, 0.22);
+        border-radius: 999px;
+        padding: 0.35rem 0.65rem;
+      }
+
+      .store-card h3 {
+        margin: 0 0 0.25rem;
+        font-size: 1.02rem;
+        line-height: 1.12;
+      }
+
+      .store-card__address,
+      .store-card__hours {
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+
+      .store-card__phone {
+        display: inline-block;
+        margin: 0.42rem 0 0.25rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .store-card__hours {
+        margin: 0 0 0.68rem;
+        padding-left: 0.92rem;
+      }
+
+      .store-card__hours li + li {
+        margin-top: 0.35rem;
+      }
+
+      .store-card__button {
+        border: 0;
+        border-radius: 10px;
+        padding: 0.58rem 0.82rem;
+        font: inherit;
+        font-size: 0.84rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .site-footer {
+        margin-top: auto;
+        border-top: 1px solid var(--line);
+        background: #020202;
+      }
+
+      .site-footer__grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1.5rem;
+        padding: 3rem 0;
+      }
+
+      .site-footer h4 {
+        margin-top: 0;
+        margin-bottom: 0.8rem;
+      }
+
+      .site-footer a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+
+      .site-footer a:hover {
+        color: var(--text);
+      }
+
+      .site-footer img {
+        max-width: 150px;
+      }
+
+      .site-footer__links {
+        display: grid;
+        gap: 0.55rem;
+      }
+
+      @media (max-width: 980px) {
+        .hero__card,
+          .details-grid,
+          .site-footer__grid,
+          .address-form__row {
+          grid-template-columns: 1fr;
+        }
+
+        .hero__note {
+          justify-self: stretch;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .navbarLinksContainer {
+          display: none;
+        }
+
+        .header-shell {
+          justify-content: space-between;
+        }
+
+        .header-spacer {
+          margin-left: 0;
+        }
+
+        .menu-toggle {
+          display: inline-flex;
+        }
+
+        .mobile-menu {
+          display: block;
+        }
+
+        .hero {
+          padding-top: 2.6rem;
+        }
+
+        .hero__card,
+        .sidebar-panel__body,
+        .map-wrap {
+          padding: 1rem;
+        }
+
+        #stores-map {
+          min-height: 360px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header id="header" class="headerContainer">
+        <div class="header-shell">
+          <a class="navbarLogoLink" href="index.html" aria-label="Mr. Sushi">
+            <img
+              class="navbarLogoImage"
+              src="https://tofuu.getjusto.com/orioneat-local/resized2/B5ox5RFJSXBEcn3PL-x-300.webp"
+              alt="Logo de Mr. Sushi Perú"
+            />
+          </a>
+
+          <nav class="navbarLinksContainer" aria-label="Principal">
+            <a class="navbarLink" href="index.html">INICIO</a>
+            <a class="navbarLink" href="pedir.html">¡PEDIR AQUÍ!</a>
+            <a class="navbarLink text-navbar-active" href="locales.html" aria-current="page">LOCALES &amp; COBERTURA</a>
+          </nav>
+
+          <div class="header-spacer">
+            <button
+              id="mobile-menu-toggle"
+              class="menu-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="mobile-menu"
+              aria-label="Abrir menú"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M4 6h16"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="container mobile-menu" id="mobile-menu" hidden>
+          <a href="index.html">INICIO</a>
+          <a href="pedir.html">¡PEDIR AQUÍ!</a>
+          <a href="locales.html" aria-current="page">LOCALES &amp; COBERTURA</a>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="container">
+            <div class="hero__card">
+              <div>
+                <h1>Cobertura del despacho</h1>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="locator">
+          <div class="container locator__layout">
+            <section class="map-panel" aria-labelledby="map-title">
+              <div class="map-wrap">
+                <div id="stores-map" aria-label="Mapa de locales Mr. Sushi"></div>
+              </div>
+            </section>
+            <div class="details-grid">
+              <section class="search-panel" aria-labelledby="search-title">
+                <div class="search-panel__head">
+                  <p>Encuentra el local más cercano según tu dirección o tu ubicación.</p>
+                </div>
+                <div class="search-panel__body">
+                  <h2 id="search-title">¡Busca tu local más cercano!</h2>
+                  <p>Ingresa tu dirección para mostrarte los locales más cercanos</p>
+
+                  <form id="address-form" class="address-form">
+                    <div class="address-form__row">
+                      <input
+                        id="address-input"
+                        type="text"
+                        name="address"
+                        placeholder="Ingresa tu dirección"
+                        autocomplete="street-address"
+                      />
+                    </div>
+                    <div class="address-form__row">
+                      <button type="submit">Buscar</button>
+                      <button id="detect-location" class="ghost-button" type="button">
+                        Usar mi ubicación
+                      </button>
+                      <button id="reset-locations" class="ghost-button" type="button">
+                        Mostrar todos
+                      </button>
+                    </div>
+                  </form>
+
+                  <p id="address-status" class="status">
+                    Mostrando todos los locales disponibles.
+                  </p>
+                </div>
+              </section>
+
+              <section class="stores-panel" aria-labelledby="stores-title">
+                <div class="stores-panel__head">
+                  <p>Todas las sedes de Mr. Sushi en Lima.</p>
+                </div>
+                <div class="stores-panel__body">
+                  <h2 id="stores-title">Todas las sedes</h2>
+                  <div id="stores-list" class="stores-list"></div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__grid">
+          <div>
+            <img
+              src="https://tofuu.getjusto.com/orioneat-local/resized2/RkqPWnMRWgWCRH3Ce-300-x.webp"
+              alt="Footer logo Mr. Sushi"
+            />
+          </div>
+          <div>
+            <h4>Conócenos</h4>
+            <div class="site-footer__links">
+              <a href="nosotros.html">Nosotros</a>
+              <a href="https://www.mrsushi.pe/documentos-legales/termsAndConditions">Términos y condiciones</a>
+              <a href="https://www.mrsushi.pe/documentos-legales/privacy">Política de privacidad</a>
+            </div>
+          </div>
+          <div>
+            <h4>Redes sociales</h4>
+            <div class="site-footer__links">
+              <a href="https://www.instagram.com/mrsushi.peru/" target="_blank" rel="noreferrer">Instagram</a>
+              <a href="https://www.facebook.com/MrSushi.Peru" target="_blank" rel="noreferrer">Facebook</a>
+            </div>
+          </div>
+          <div>
+            <h4>Mi cuenta</h4>
+            <div class="site-footer__links">
+              <a href="pedir.html">Pedir</a>
+              <a href="reclamos.html">Libro de reclamaciones</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/vendor/leaflet/leaflet.js?v=20260703-2"></script>
+    <script type="module" src="src/js/locales-page.js?v=20260703-2"></script>
+    <script>
+      const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener("click", () => {
+          const isOpen = mobileMenuToggle.getAttribute("aria-expanded") === "true";
+          mobileMenuToggle.setAttribute("aria-expanded", String(!isOpen));
+          mobileMenu.hidden = isOpen;
+        });
+      }
+    </script>
+  </body>
+</html>

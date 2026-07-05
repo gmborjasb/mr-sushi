@@ -1,0 +1,73 @@
+org: francishuerta
+service: mrsushi-ms-autenticacion
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  httpApi:
+    cors: true
+  iam:
+    role: arn:aws:iam::481849631317:role/LabRole
+  environment:
+    USUARIOS_TABLE: MrSushiUsuarios
+    USUARIO_LOCKS_TABLE: MrSushiUsuarioEmailLocks
+    JWT_SECRET: ${env:JWT_SECRET, 'mrsushi-dev-secret-v2-2026'}
+
+functions:
+  registrar:
+    handler: handler.registrar
+    events:
+      - httpApi:
+          path: /auth/register
+          method: POST
+
+  login:
+    handler: handler.login
+    events:
+      - httpApi:
+          path: /auth/login
+          method: POST
+
+  perfil:
+    handler: handler.perfil
+    events:
+      - httpApi:
+          path: /auth/me
+          method: GET
+
+  trabajadores:
+    handler: handler.trabajadores
+    events:
+      - httpApi:
+          path: /auth/workers
+          method: GET
+
+resources:
+  Resources:
+    UsuariosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MrSushiUsuarios
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: sedeId
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sedeId
+            KeyType: HASH
+          - AttributeName: email
+            KeyType: RANGE
+    UsuarioEmailLocksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MrSushiUsuarioEmailLocks
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH

@@ -1,0 +1,24 @@
+{
+  "name": "mrsushi-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm --prefix ms-sedes install && npm --prefix ms-autenticacion install && npm --prefix ms-clientes install && npm --prefix ms-pedidos install && npm --prefix ms-flujo-trabajo install && npm --prefix ms-stepfunctions install",
+    "deploy:sedes": "npx serverless deploy --config ms-sedes/serverless.yml",
+    "deploy:auth": "npx serverless deploy --config ms-autenticacion/serverless.yml",
+    "deploy:clientes": "npx serverless deploy --config ms-clientes/serverless.yml",
+    "deploy:pedidos": "npx serverless deploy --config ms-pedidos/serverless.yml",
+    "deploy:flujo": "npx serverless deploy --config ms-flujo-trabajo/serverless.yml",
+    "deploy:stepfunctions": "npx serverless deploy --config ms-stepfunctions/serverless.yml",
+    "deploy:all": "npm run deploy:sedes && npm run deploy:auth && npm run deploy:clientes && npm run deploy:flujo && npm run deploy:stepfunctions && npm run deploy:pedidos",
+    "check:syntax": "node --check ms-sedes/handler.js && node --check ms-autenticacion/handler.js && node --check ms-clientes/handler.js && node --check ms-pedidos/handler.js && node --check ms-flujo-trabajo/handler.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "serverless": "^4.37.0",
+    "serverless-step-functions": "^3.30.0"
+  }
+}

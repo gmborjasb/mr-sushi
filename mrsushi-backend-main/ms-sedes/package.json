@@ -1,0 +1,10 @@
+{
+  "name": "mrsushi-ms-sedes",
+  "version": "1.0.0",
+  "main": "handler.js",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.699.0",
+    "@aws-sdk/lib-dynamodb": "^3.699.0"
+  }
+}
