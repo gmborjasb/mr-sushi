@@ -4,13 +4,13 @@
   paper: "a4",
   margin: (x: 2.5cm, top: 3cm, bottom: 2.5cm),
   header: align(right, text(8pt, fill: luma(120), font: "Liberation Sans")[Informe Técnico - Proyecto Mr. Sushi]),
-  footer: locate(loc => {
-    let page_number = counter(page).at(loc).first()
-    let total_pages = counter(page).final(loc).first()
+  footer: context {
+    let page_number = counter(page).get().first()
+    let total_pages = counter(page).final().first()
     if page_number > 1 {
       align(center, text(9pt, fill: luma(80))[Página #page_number de #total_pages])
     }
-  })
+  }
 )
 #set text(
   font: "Liberation Sans",
@@ -146,8 +146,8 @@ El modelo de persistencia utiliza Amazon DynamoDB en modalidad bajo demanda (PAY
 = Integración Multi-Cloud (GCP)
 Para cumplir los requerimientos multi-nube, se desacopló el envío de notificaciones hacia el sistema de delivery Rappi.
 
-- La infraestructura de Google Cloud se levantó de manera declarativa con **Terraform**.
-- Se desplegó una **Google Cloud Function** escrita sobre Express.js (`rappiWebhook`).
+- La infraestructura de Google Cloud se levantó de manera declarativa con *Terraform*.
+- Se desplegó una *Google Cloud Function* escrita sobre Express.js (`rappiWebhook`).
 - Cuando un pedido cambia de estado en AWS, el Lambda `completarEtapa` envía un HTTP POST al endpoint de actualización de GCP (`/rappi/estado`) simulando la pantalla del motorizado de Rappi.
 - El simulador de Rappi también puede inyectar pedidos de forma inversa llamando síncronamente al endpoint de creación de AWS a través de la ruta `/rappi/pedidos`.
 
@@ -192,6 +192,6 @@ A continuación, se listan los placeholders de evidencias de la implementación 
 ]
 
 = Conclusiones y Limitaciones
-1. **Escalabilidad Serverless:** Toda la infraestructura backend se ajusta de manera elástica según la concurrencia de clientes. Al no contar con servidores aprovisionados en estado ocioso, el costo operativo de la plataforma se aproxima a cero en horas de baja demanda.
-2. **Limitaciones del Learner Lab:** La infraestructura corre sobre las cuentas AWS Academy Learner Labs, cuyas credenciales expiran y se reciclan periódicamente. Por tanto, los recursos (DynamoDB, Lambdas, S3) son de naturaleza temporal, aunque la lógica del código y la arquitectura están diseñadas para producción continua en un entorno corporativo real de AWS.
-3. **Seguridad y Aislamiento:** El aislamiento multi-sede se resolvió a nivel lógico encriptando la sucursal del trabajador dentro del token JWT de sesión. Así se evita la manipulación maliciosa de IDs de sedes por parte del navegador cliente.
+1. *Escalabilidad Serverless:* Toda la infraestructura backend se ajusta de manera elástica según la concurrencia de clientes. Al no contar con servidores aprovisionados en estado ocioso, el costo operativo de la plataforma se aproxima a cero en horas de baja demanda.
+2. *Limitaciones del Learner Lab:* La infraestructura corre sobre las cuentas AWS Academy Learner Labs, cuyas credenciales expiran y se reciclan periódicamente. Por tanto, los recursos (DynamoDB, Lambdas, S3) son de naturaleza temporal, aunque la lógica del código y la arquitectura están diseñadas para producción continua en un entorno corporativo real de AWS.
+3. *Seguridad y Aislamiento:* El aislamiento multi-sede se resolvió a nivel lógico encriptando la sucursal del trabajador dentro del token JWT de sesión. Así se evita la manipulación maliciosa de IDs de sedes por parte del navegador cliente.
