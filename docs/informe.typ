@@ -40,13 +40,13 @@
 #align(center + horizon)[
   #v(-4em)
   #rect(width: 100%, stroke: rgb("#FF9900"), inset: 15pt, radius: 4pt)[
-    #text(20pt, weight: "bold", fill: rgb("#232F3E"))[INFORME TÉCNICO DE ARQUITECTURA CLOUD]
+    #text(20pt, weight: "bold", fill: rgb("#232F3E"))[INFORME]
     #v(0.5em)
-    #text(16pt, weight: "medium", fill: rgb("#FF9900"))[Mr. Sushi: Sistema de Pedidos Multi-Sede y Event-Driven]
+    #text(16pt, weight: "medium", fill: rgb("#FF9900"))[Mr. Sushi: Sistema de Pedidos]
   ]
   
   #v(3em)
-  #text(12pt, weight: "bold")[Curso de Arquitectura de Soluciones Cloud]
+  #text(12pt, weight: "bold")[Cloud Computing]
   #v(4em)
   
   #grid(
@@ -61,7 +61,7 @@
   )
   
   #v(8em)
-  #text(10pt, fill: luma(100))[Universidad de Ingeniería y Tecnología (UTEC)\n2026]
+  #text(10pt, fill: luma(100))[Universidad de Ingeniería y Tecnología (UTEC) \ \ 2026]
 ]
 
 #pagebreak()
@@ -89,11 +89,9 @@ A continuación, se detalla el diagrama lógico que describe el enrutamiento de 
 
 // Placeholder de Imagen de Arquitectura (Reemplazar ruta cuando pongas la imagen en la carpeta docs/images/)
 #align(center)[
-  #block(stroke: luma(200), inset: 10pt, radius: 4pt)[
-    #text(10pt, style: "italic")[Para compilar con tu gráfico visual exportado de Mermaid, guarda el archivo en 'docs/images/arquitectura.png']
-    // Descomentar la siguiente línea tras guardar la imagen en la carpeta:
-    // #image("images/arquitectura.png", width: 90%)
-  ]
+  #image("images/arquitectura.png", width: 100%)
+  #v(0.5em)
+  #text(9pt, style: "italic", fill: luma(100))[Figura 1: Diagrama de Arquitectura de Solución Híbrida (AWS + GCP)]
 ]
 
 == Componentes y Orquestación en AWS
