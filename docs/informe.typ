@@ -3,7 +3,7 @@
 #set page(
   paper: "a4",
   margin: (x: 2.5cm, top: 3cm, bottom: 2.5cm),
-  header: align(right, text(8pt, fill: luma(120), font: "Liberation Sans")[Informe Técnico - Proyecto Mr. Sushi]),
+  header: align(right, text(8pt, fill: luma(120), font: ("Fira Sans", "Arial", "sans-serif"))[Informe Técnico - Proyecto Mr. Sushi]),
   footer: context {
     let page_number = counter(page).get().first()
     let total_pages = counter(page).final().first()
@@ -13,7 +13,7 @@
   }
 )
 #set text(
-  font: "Liberation Sans",
+  font: ("Fira Sans", "Arial", "sans-serif"),
   size: 11pt,
   fill: rgb("#232F3E"),
   spacing: 120%
@@ -22,7 +22,7 @@
 #set heading(numbering: "1.1.")
 
 // Estilos de Título y Subtítulos
-#show heading: it => block(bottom: 1em)[
+#show heading: it => block(below: 1em)[
   #set text(weight: "bold", fill: rgb("#111827"))
   #if it.level == 1 {
     v(1.5em)
