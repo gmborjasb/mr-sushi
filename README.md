@@ -284,18 +284,6 @@ Distribuido bajo licencia **ISC**, según lo declarado en los `package.json` del
 
 ---
 
-## 🎓 Uso para presentación
-
-Resumen copiable para diapositivas:
-
-- **Idea principal**: sistema serverless multinube para la gestión de pedidos de la cadena Mr Sushi.
-- **Problema**: coordinar pedidos de múltiples canales y sedes sin infraestructura fija ni acoplamiento entre servicios.
-- **Solución propuesta**: microservicios independientes en AWS (Lambda + API Gateway + DynamoDB) coordinados por eventos (EventBridge) y orquestados por una máquina de estados (Step Functions).
-- **Arquitectura**: AWS Amplify (frontends) + API Gateway + Lambda + DynamoDB + EventBridge + Step Functions + S3, integrados con una Cloud Function en Google Cloud.
-- **Flujo del pedido**: creación → validación → registro en DynamoDB → evento en EventBridge → orquestación en Step Functions (cocción, empaquetado, reparto) → entrega → recibo en S3.
-- **Integración multinube**: Google Cloud Function `rappiWebhook` simula un agregador externo, reenviando pedidos hacia AWS y recibiendo actualizaciones de estado.
-- **Beneficios**: costo por uso, escalabilidad automática, bajo acoplamiento entre servicios y trazabilidad completa del ciclo de vida del pedido.
-
 <div align="center">
 
 Desarrollado por Rafael Choque Coaquira, Gerald Borjas Bernaola y Francis Huerta Roque
