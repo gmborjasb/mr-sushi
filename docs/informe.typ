@@ -151,16 +151,38 @@ Para cumplir los requerimientos multi-nube, se desacopló el envío de notificac
 
 = Evidencias de Funcionamiento
 
-A continuación, se listan los placeholders de evidencias de la implementación para que cargues tus capturas de pantalla de la sustentación:
+A continuación, se presentan las capturas de pantalla tomadas directamente de los servicios en ejecución como evidencia del funcionamiento de la plataforma:
 
-// Evidencia 1: Clientes
-#align(center)[
-  #block(stroke: luma(200), inset: 10pt, radius: 4pt)[
-    #text(10pt, style: "italic")[Evidencia 1: Interfaz Pública de Clientes (Amplify)]\
-    #v(0.5em)
-    // #image("images/clientes.png", width: 85%)
+== Portal Transaccional de Clientes
+
+#grid(
+  columns: (1fr, 1fr),
+  gutter: 1cm,
+  [
+    #image("images/clientes_home.png", width: 100%)
+    #align(center)[#text(8pt, style: "italic")[Vista de inicio y catálogo de productos]]
+  ],
+  [
+    #image("images/clientes_modal.png", width: 100%)
+    #align(center)[#text(8pt, style: "italic")[Detalle de producto y agregados]]
+  ],
+  [
+    #image("images/clientes_carrito.png", width: 100%)
+    #align(center)[#text(8pt, style: "italic")[Flujo lateral del carrito de compras]]
+  ],
+  [
+    #image("images/clientes_pedidos.png", width: 100%)
+    #align(center)[#text(8pt, style: "italic")[Historial de compras del cliente]]
   ]
+)
+
+#v(0.5em)
+#align(center)[
+  #image("images/clientes_checkout.png", width: 90%)
+  #v(0.2em)
+  #text(8pt, style: "italic")[Checkout final, selección de sede de entrega y cálculo de Neki Puntos]
 ]
+#v(1em)
 
 // Evidencia 2: Trabajadores
 #align(center)[
