@@ -1,0 +1,260 @@
+@import url("https://tofuu.getjusto.com/orioneat-prod/Silverspoon-CondensedBold.css");
+
+:root {
+  --mr-sushi-orange: #fb2301;
+  --mr-sushi-cream: #f7f2ea;
+  --mr-sushi-line: rgba(255, 255, 255, 0.12);
+}
+
+#header.headerContainer {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 40 !important;
+  backdrop-filter: blur(18px);
+  background: rgba(8, 8, 8, 0.82) !important;
+  border-bottom: 1px solid var(--mr-sushi-line) !important;
+  color: var(--mr-sushi-cream) !important;
+}
+
+#header.headerContainer > div,
+#header.headerContainer .header-shell {
+  min-height: 64px !important;
+  height: 64px !important;
+  max-width: 1280px !important;
+}
+
+#header.headerContainer .navbarLogoImage {
+  width: auto !important;
+  height: 48px !important;
+  display: block;
+}
+
+#header.headerContainer .navbarLogoLink {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+#header.headerContainer .navbarLinksContainer {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+#header.headerContainer .navbarLink {
+  font-family: "Silverspoon-CondensedBold", sans-serif !important;
+  color: rgba(247, 242, 234, 0.76) !important;
+  text-decoration: none !important;
+  letter-spacing: 0 !important;
+  transition: color 160ms ease, opacity 160ms ease;
+}
+
+#header.headerContainer .navbarLink:hover {
+  color: #fff !important;
+}
+
+#header.headerContainer .navbarLink.text-navbar-active,
+#header.headerContainer .navbarLink[aria-current="page"] {
+  color: var(--mr-sushi-orange) !important;
+}
+
+#header.headerContainer .navbarLink[href="index.html"].text-navbar-active {
+  color: var(--mr-sushi-orange) !important;
+}
+
+#header.headerContainer .bg-secondary,
+#header.headerContainer button.bg-secondary {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+#header.headerContainer .menu-toggle {
+  color: var(--mr-sushi-cream) !important;
+  border-color: var(--mr-sushi-line) !important;
+}
+
+#header.headerContainer .mobile-menu a {
+  color: rgba(247, 242, 234, 0.78) !important;
+}
+
+#header.headerContainer .mobile-menu a[aria-current="page"] {
+  color: var(--mr-sushi-orange) !important;
+}
+
+.ct-redirect {
+  display: none !important;
+}
+
+.codex-home-profile-button {
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(251, 35, 1, 0.42) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--mr-sushi-orange) !important;
+  cursor: pointer;
+}
+
+.codex-home-profile-button.is-logged-in {
+  background: #f7f7f7 !important;
+  border-color: rgba(255, 255, 255, 0.86) !important;
+  color: #050505 !important;
+}
+
+.codex-home-profile-menu,
+.codex-home-auth-modal {
+  position: fixed;
+  z-index: 120;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #070707;
+  color: var(--mr-sushi-cream);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.55);
+}
+
+.codex-home-profile-menu[hidden],
+.codex-home-auth-overlay[hidden],
+.codex-home-auth-modal[hidden] {
+  display: none;
+}
+
+.codex-home-profile-menu {
+  width: min(210px, calc(100vw - 24px));
+  padding: 0.45rem 0;
+  border-radius: 6px;
+}
+
+.codex-home-profile-head {
+  padding: 0.65rem 0.7rem 0.55rem;
+}
+
+.codex-home-profile-head strong,
+.codex-home-profile-head span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.codex-home-profile-head strong {
+  color: #fff;
+  font-size: 0.86rem;
+}
+
+.codex-home-profile-head span {
+  margin-top: 0.2rem;
+  color: rgba(247, 242, 234, 0.55);
+  font-size: 0.78rem;
+}
+
+.codex-home-profile-menu button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 0;
+  background: transparent;
+  color: #f7f2ea;
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  font-size: 0.84rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.codex-home-profile-menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.codex-home-profile-logout {
+  margin-top: 0.35rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  padding-top: 0.7rem !important;
+}
+
+.codex-home-auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 119;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.codex-home-auth-modal {
+  top: 50%;
+  left: 50%;
+  width: min(390px, calc(100vw - 2rem));
+  transform: translate(-50%, -50%);
+  border-radius: 18px;
+  padding: 1rem;
+}
+
+.codex-home-auth-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.codex-home-auth-head h3 {
+  margin: 0;
+  font-family: "Silverspoon-CondensedBold", sans-serif;
+  font-size: 2rem;
+}
+
+.codex-home-auth-close {
+  align-self: flex-start;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+}
+
+.codex-home-auth-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.codex-home-auth-form label {
+  display: grid;
+  gap: 0.38rem;
+  color: rgba(247, 242, 234, 0.82);
+  font-size: 0.88rem;
+}
+
+.codex-home-auth-form input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: #050505;
+  color: #f7f2ea;
+  padding: 0.78rem 0.85rem;
+  outline: none;
+}
+
+.codex-home-auth-submit {
+  border: 0;
+  border-radius: 999px;
+  background: var(--mr-sushi-orange);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.85rem 1rem;
+}
+
+.codex-home-auth-status {
+  min-height: 1.2rem;
+  margin: 0.75rem 0 0;
+  color: #ff9a86;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 800px) {
+  #header.headerContainer .navbarLogoImage {
+    height: 40px !important;
+  }
+}
