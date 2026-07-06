@@ -1,0 +1,92 @@
+org: francishuerta
+service: mrsushi-ms-pedidos
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  httpApi:
+    cors: true
+  iam:
+    role: arn:aws:iam::481849631317:role/LabRole
+  environment:
+    PEDIDOS_TABLE: MrSushiPedidos
+    CONTADORES_TABLE: MrSushiContadores
+    SEDES_TABLE: MrSushiSedes
+    JWT_SECRET: ${env:JWT_SECRET, 'mrsushi-dev-secret-v2-2026'}
+
+functions:
+  crearPedido:
+    handler: handler.crearPedido
+    events:
+      - httpApi:
+          path: /pedidos
+          method: POST
+
+  obtenerPedido:
+    handler: handler.obtenerPedido
+    events:
+      - httpApi:
+          path: /pedidos/{pedidoId}
+          method: GET
+
+  listarPedidos:
+    handler: handler.listarPedidos
+    events:
+      - httpApi:
+          path: /pedidos
+          method: GET
+
+resources:
+  Resources:
+    PedidosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MrSushiPedidos
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: sedeId
+            AttributeType: S
+          - AttributeName: pedidoId
+            AttributeType: S
+          - AttributeName: clienteId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sedeId
+            KeyType: HASH
+          - AttributeName: pedidoId
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: ClienteIndex
+            KeySchema:
+              - AttributeName: clienteId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: SedeCreatedIndex
+            KeySchema:
+              - AttributeName: sedeId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+    ContadoresTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MrSushiContadores
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: sedeId
+            AttributeType: S
+          - AttributeName: fecha
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sedeId
+            KeyType: HASH
+          - AttributeName: fecha
+            KeyType: RANGE

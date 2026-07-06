@@ -1,0 +1,30 @@
+org: francishuerta
+service: mrsushi-ms-recibos
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  iam:
+    role: arn:aws:iam::481849631317:role/LabRole
+  environment:
+    BUCKET_NAME: mrsushi-recibos-storage-v2-2026
+
+functions:
+  generarRecibo:
+    handler: handler.generarRecibo
+    events:
+      - eventBridge:
+          eventBus: arn:aws:events:us-east-1:481849631317:event-bus/mrsushi-bus
+          pattern:
+            source:
+              - mrsushi.stepfunctions
+            detail-type:
+              - PedidoCompletado
+
+resources:
+  Resources:
+    RecibosBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: mrsushi-recibos-storage-v2-2026

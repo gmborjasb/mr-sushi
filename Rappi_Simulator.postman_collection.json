@@ -1,0 +1,77 @@
+{
+	"info": {
+		"_postman_id": "e932b781-a54b-4b13-982d-8b0123456789",
+		"name": "Mr Sushi Multi-Cloud",
+		"description": "Endpoints para simular la integración de pedidos entre Rappi (GCP) y AWS.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Rappi Simulator (GCP)",
+			"item": [
+				{
+					"name": "Enviar Pedido desde Rappi a AWS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    {\n      \"nombre\": \"Maki Acevichado (Rappi)\",\n      \"cantidad\": 1,\n      \"precio\": 25,\n      \"id\": \"item-999\"\n    }\n  ],\n  \"total\": 25,\n  \"contact\": {\n    \"nombre\": \"Maria Cliente Rappi\",\n    \"telefono\": \"+51999888777\"\n  },\n  \"fulfillment\": {\n    \"type\": \"delivery\",\n    \"coordinates\": {\n      \"latitude\": -12.046374,\n      \"longitude\": -77.042793\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "https://us-central1-rappi-api-501600.cloudfunctions.net/rappi-simulator/rappi/pedidos",
+							"protocol": "https",
+							"host": [
+								"us-central1-rappi-api-501600",
+								"cloudfunctions",
+								"net"
+							],
+							"path": [
+								"rappi-simulator",
+								"rappi",
+								"pedidos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Webhook Notificación (Llamado por AWS)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pedidoId\": \"uuid-del-pedido-123\",\n  \"estado\": \"PACKING\"\n}"
+						},
+						"url": {
+							"raw": "https://us-central1-rappi-api-501600.cloudfunctions.net/rappi-simulator/rappi/estado",
+							"protocol": "https",
+							"host": [
+								"us-central1-rappi-api-501600",
+								"cloudfunctions",
+								"net"
+							],
+							"path": [
+								"rappi-simulator",
+								"rappi",
+								"estado"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

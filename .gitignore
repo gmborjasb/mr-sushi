@@ -1,2 +1,30 @@
+# Dependencias
 node_modules/
+package-lock.json
+
+# Serverless Framework
 .serverless/
+
+# Terraform (Google Cloud Functions)
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Archivos de entorno y secretos
+.env
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Archivos generados
+*.zip
+dist/
+build/
+.DS_Store
+*.log
+
+# Colecciones locales de Postman (opcional)
+# Rappi_Simulator.postman_collection.json

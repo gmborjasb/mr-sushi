@@ -1,0 +1,13 @@
+{
+  "name": "mrsushi-ms-flujo-trabajo",
+  "version": "1.0.0",
+  "main": "handler.js",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.699.0",
+    "@aws-sdk/client-sfn": "^3.699.0",
+    "@aws-sdk/lib-dynamodb": "^3.699.0",
+    "axios": "^1.18.1",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

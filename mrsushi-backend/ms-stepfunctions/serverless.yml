@@ -1,0 +1,126 @@
+org: francishuerta
+service: mrsushi-ms-stepfunctions
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  httpApi:
+    cors: true
+  iam:
+    role: arn:aws:iam::481849631317:role/LabRole
+
+plugins:
+  - serverless-step-functions
+
+stepFunctions:
+  stateMachines:
+    FlujoPedidoMrSushi:
+      name: mrsushi-flujo-pedido
+      role: arn:aws:iam::481849631317:role/LabRole
+      definition:
+        Comment: "Flujo de trabajo de pedidos Mr Sushi"
+        StartAt: ExtraerDetalle
+        States:
+          ExtraerDetalle:
+            Type: Pass
+            InputPath: "$.detail"
+            Next: Cocina
+          Cocina:
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke.waitForTaskToken
+            Parameters:
+              FunctionName: arn:aws:lambda:us-east-1:481849631317:function:mrsushi-ms-flujo-trabajo-dev-guardarTaskToken
+              Payload:
+                step: COOKING
+                taskToken.$: "$$.Task.Token"
+                pedidoId.$: "$.pedidoId"
+                orderId.$: "$.orderId"
+                sedeId.$: "$.sedeId"
+                origin.$: "$.origin"
+            ResultPath: "$.cocinaResult"
+            Next: Despacho
+          Despacho:
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke.waitForTaskToken
+            Parameters:
+              FunctionName: arn:aws:lambda:us-east-1:481849631317:function:mrsushi-ms-flujo-trabajo-dev-guardarTaskToken
+              Payload:
+                step: PACKING
+                taskToken.$: "$$.Task.Token"
+                pedidoId.$: "$.pedidoId"
+                orderId.$: "$.orderId"
+                sedeId.$: "$.sedeId"
+                origin.$: "$.origin"
+            ResultPath: "$.despachoResult"
+            Next: DecidirEntrega
+          DecidirEntrega:
+            Type: Choice
+            Choices:
+              - Variable: "$.esRecojo"
+                BooleanEquals: true
+                Next: ListoParaRecoger
+            Default: Reparto
+          ListoParaRecoger:
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke.waitForTaskToken
+            Parameters:
+              FunctionName: arn:aws:lambda:us-east-1:481849631317:function:mrsushi-ms-flujo-trabajo-dev-guardarTaskToken
+              Payload:
+                step: READY_FOR_PICKUP
+                taskToken.$: "$$.Task.Token"
+                pedidoId.$: "$.pedidoId"
+                orderId.$: "$.orderId"
+                sedeId.$: "$.sedeId"
+                origin.$: "$.origin"
+            ResultPath: "$.recojoResult"
+            Next: EmitirEventoFinalizado
+          Reparto:
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke.waitForTaskToken
+            Parameters:
+              FunctionName: arn:aws:lambda:us-east-1:481849631317:function:mrsushi-ms-flujo-trabajo-dev-guardarTaskToken
+              Payload:
+                step: DELIVERING
+                taskToken.$: "$$.Task.Token"
+                pedidoId.$: "$.pedidoId"
+                orderId.$: "$.orderId"
+                sedeId.$: "$.sedeId"
+                origin.$: "$.origin"
+            ResultPath: "$.repartoResult"
+            Next: EmitirEventoFinalizado
+          EmitirEventoFinalizado:
+            Type: Task
+            Resource: "arn:aws:states:::events:putEvents"
+            Parameters:
+              Entries:
+                - EventBusName: mrsushi-bus
+                  Source: "mrsushi.stepfunctions"
+                  DetailType: "PedidoCompletado"
+                  Detail.$: "$"
+            Next: Finalizado
+          Finalizado:
+            Type: Succeed
+
+resources:
+  Resources:
+    MrSushiBus:
+      Type: AWS::Events::EventBus
+      Properties:
+        Name: mrsushi-bus
+        
+    EventRuleTriggerStepFunction:
+      Type: AWS::Events::Rule
+      DependsOn: MrSushiBus
+      Properties:
+        EventBusName: mrsushi-bus
+        EventPattern:
+          source:
+            - mrsushi.pedidos
+          detail-type:
+            - PedidoCreado
+        State: ENABLED
+        Targets:
+          - Arn: !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:mrsushi-flujo-pedido"
+            Id: "TriggerSFN"
+            RoleArn: arn:aws:iam::481849631317:role/LabRole
