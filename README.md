@@ -1,284 +1,303 @@
-# Mr. Sushi — Sistema de Pedidos Multi-Sede
+<div align="center">
 
-Sistema de pedidos y gestión de cocina para la cadena Mr. Sushi. Cada una de las 8 sedes físicas opera como un tenant independiente con su propia cola de cocina, despacho y reparto. Clientes y el programa de puntos (Neki Puntos) son compartidos entre todas las sedes.
+  <img src="mrsushi-frontend-clientes/images/branding/mrsushi-logo.png" width="120" alt="Mr Sushi Logo" />
 
-## Integrantes del Proyecto
-- Rafael Rodrigo Choque Coaquira (202410378)
-- Gerald Marcelo Fernando Borjas Bernaola (202510059)
-- Francis Andres Huerta Roque (20231053)
+  # 🍣 Mr Sushi Cloud Architecture
 
-## Estructura del Repositorio
+  **Sistema serverless multinube para gestión y seguimiento de pedidos**
 
-```text
-todito/
-├── mrsushi-backend/          Backend serverless en AWS (Lambda + DynamoDB + Step Functions + EventBridge)
-├── frontend-trabajadores/    Panel web SPA para el personal (React + Vite)
-├── mrsushi_clientes/         Sitio web público para clientes (HTML/CSS/JS estático)
-└── api-rappi-gcp/            Simulador de integración de terceros (Google Cloud Functions + Terraform)
-```
+  [![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?style=flat-square&logo=amazonaws&logoColor=white)](https://aws.amazon.com/)
+  [![Serverless](https://img.shields.io/badge/Serverless-Framework-FD5750?style=flat-square&logo=serverless&logoColor=white)](https://www.serverless.com/)
+  [![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+  [![DynamoDB](https://img.shields.io/badge/DynamoDB-NoSQL-4053D6?style=flat-square&logo=amazondynamodb&logoColor=white)](https://aws.amazon.com/dynamodb/)
+  [![EventBridge](https://img.shields.io/badge/EventBridge-Events-FF4F8B?style=flat-square&logo=amazonaws&logoColor=white)](https://aws.amazon.com/eventbridge/)
+  [![Step Functions](https://img.shields.io/badge/Step_Functions-Orchestration-00A4A6?style=flat-square&logo=amazonaws&logoColor=white)](https://aws.amazon.com/step-functions/)
+  [![Google Cloud](https://img.shields.io/badge/Google_Cloud-Functions-4285F4?style=flat-square&logo=googlecloud&logoColor=white)](https://cloud.google.com/functions)
+  [![License](https://img.shields.io/badge/License-ISC-blue?style=flat-square)](#-licencia)
 
-## Arquitectura del Sistema
+  [Arquitectura](#-arquitectura-general) · [Instalación](#-instalación-y-ejecución) · [API](#-endpoints-principales) · [Despliegue](#-despliegue)
 
-```mermaid
-flowchart TD
-    %% Estilos de Elementos
-    classDef aws_apigw fill:#FFF,stroke:#FF9900,stroke-width:2px,color:#232F3E;
-    classDef aws_lambda fill:#FFF,stroke:#FF9900,stroke-width:2px,color:#232F3E,stroke-dasharray: 5 5;
-    classDef aws_ddb fill:#FFF,stroke:#3B48CC,stroke-width:2px,color:#232F3E;
-    classDef aws_sfn fill:#F0F8FF,stroke:#00A4A6,stroke-width:2.5px,color:#232F3E;
-    classDef aws_eb fill:#FFF0F5,stroke:#FF4F8B,stroke-width:3px,color:#232F3E;
-    classDef aws_s3 fill:#FFF,stroke:#4CAF50,stroke-width:2px,color:#232F3E;
-    classDef aws_amplify fill:#FFF,stroke:#E7157B,stroke-width:2.5px,color:#232F3E;
-    classDef gcp_cf fill:#FFF,stroke:#4285F4,stroke-width:2.5px,color:#232F3E;
+</div>
 
-    %% FRONTENDS
-    subgraph Frontends [🌐 FRONTENDS - AWS Amplify]
-        direction LR
-        F1("<b>💻 mr-sushi-clientes (Amplify ZIP)</b><br/>• Stack: HTML5 / CSS3 / Vanilla JS<br/>• Flujo: Consulta menú y envía pedidos."):::aws_amplify
-        F2("<b>💻 mr-sushi-trabajadores (Amplify ZIP)</b><br/>• Stack: React / Vite / Tailwind CSS<br/>• Flujo: Dashboard interno, login, avance de estados."):::aws_amplify
-    end
+---
 
-    %% MICROSERVICIOS BACKEND AWS
-    subgraph AWS_Backend [☁️ AWS CLOUD - Microservicios Serverless Node.js 18.x]
-        direction TB
+## 📌 Presentación del proyecto
 
-        %% MS-AUTENTICACION
-        subgraph ms_auth [🔒 ms-autenticacion]
-            direction TB
-            AGW_auth["🌐 API Gateway (REST)<br/>• POST /auth/register<br/>• POST /auth/login<br/>• GET /auth/me<br/>• GET /auth/workers"]:::aws_apigw
-            
-            subgraph Lambdas_Auth [⚙️ Lambdas ms-autenticacion]
-                L_reg("⚙️ registrar"):::aws_lambda
-                L_log("⚙️ login"):::aws_lambda
-                L_perf("⚙️ perfil"):::aws_lambda
-                L_trab("⚙️ trabajadores"):::aws_lambda
-            end
+**Mr Sushi Cloud Architecture** es el backend serverless que soporta la operación de pedidos de la cadena de restaurantes Mr Sushi. El sistema administra el ciclo de vida completo de un pedido —desde su creación hasta la entrega— a través de microservicios independientes desplegados en AWS, coordinados mediante eventos y máquinas de estado.
 
-            DDB_auth[("🗄️ DynamoDB<br/>• MrSushiUsuarios<br/>• MrSushiUsuarioEmailLocks")]:::aws_ddb
-            
-            AGW_auth --> L_reg & L_log & L_perf & L_trab
-            L_reg & L_log & L_perf & L_trab --> DDB_auth
-        end
+El proyecto integra, además, una nube secundaria (Google Cloud Platform) para simular la llegada de pedidos desde un agregador externo tipo Rappi, demostrando un escenario real de arquitectura **multinube**.
 
-        %% MS-PEDIDOS
-        subgraph ms_pedidos [📦 ms-pedidos]
-            direction TB
-            AGW_ped["🌐 API Gateway (REST)<br/>• POST /pedidos<br/>• GET /pedidos<br/>• GET /pedidos/{pedidoId}"]:::aws_apigw
-            
-            subgraph Lambdas_Ped [⚙️ Lambdas ms-pedidos]
-                L_cped("⚙️ crearPedido"):::aws_lambda
-                L_oped("⚙️ obtenerPedido"):::aws_lambda
-                L_lped("⚙️ listarPedidos"):::aws_lambda
-            end
+## 🎯 Problema que resuelve
 
-            DDB_ped[("🗄️ DynamoDB<br/>• MrSushiPedidos<br/>• MrSushiContadores")]:::aws_ddb
-            
-            AGW_ped --> L_cped & L_oped & L_lped
-            L_cped & L_oped & L_lped --> DDB_ped
-        end
+Una cadena de restaurantes con múltiples sedes físicas necesita:
 
-        %% MS-CLIENTES
-        subgraph ms_clientes [👤 ms-clientes]
-            direction TB
-            AGW_cli["🌐 API Gateway (REST)<br/>• POST /clientes/register<br/>• POST /clientes/login<br/>• GET/PATCH /clientes/me<br/>• GET/POST /clientes/me/direcciones<br/>• GET /clientes/me/neki-puntos<br/>• PATCH /clientes/{clienteId}/neki-puntos"]:::aws_apigw
-            
-            subgraph Lambdas_Cli [⚙️ Lambdas ms-clientes]
-                L_rcli("⚙️ registrarCliente"):::aws_lambda
-                L_lcli("⚙️ loginCliente"):::aws_lambda
-                L_ocli("⚙️ obtenerPerfil"):::aws_lambda
-                L_acli("⚙️ actualizarPerfil"):::aws_lambda
-                L_adcl("⚙️ agregarDireccion"):::aws_lambda
-                L_ldcl("⚙️ listarDirecciones"):::aws_lambda
-                L_opun("⚙️ obtenerPuntos"):::aws_lambda
-                L_apun("⚙️ ajustarPuntos"):::aws_lambda
-            end
+- Coordinar pedidos de distintos orígenes (clientes propios y aplicaciones de delivery externas) sin acoplar la lógica de negocio a un solo canal.
+- Dar seguimiento en tiempo real a las etapas de un pedido (cocina, empaquetado, reparto) sin depender de servidores siempre encendidos.
+- Aislar la información de cada sede evitando que un trabajador vea u opere pedidos de otra sede.
+- Escalar automáticamente durante picos de demanda sin gestionar infraestructura manualmente.
 
-            DDB_cli[("🗄️ DynamoDB<br/>• MrSushiClientes<br/>• MrSushiClienteEmailLocks")]:::aws_ddb
+## 🚀 Objetivo del sistema
 
-            AGW_cli --> L_rcli & L_lcli & L_ocli & L_acli & L_adcl & L_ldcl & L_opun & L_apun
-            L_rcli & L_lcli & L_ocli & L_acli & L_adcl & L_ldcl & L_opun & L_apun --> DDB_cli
-        end
+Ofrecer una plataforma **100% serverless y event-driven** que:
 
-        %% MS-SEDES
-        subgraph ms_sedes [🏢 ms-sedes]
-            direction TB
-            AGW_sed["🌐 API Gateway (REST)<br/>• GET /sedes"]:::aws_apigw
-            L_sedes("⚙️ listarSedes"):::aws_lambda
-            DDB_sedes[("🗄️ DynamoDB<br/>• MrSushiSedes")]:::aws_ddb
-            
-            AGW_sed --> L_sedes --> DDB_sedes
-        end
+- Reduzca costos operativos al pagar solo por invocación (Lambda) y por lectura/escritura (DynamoDB).
+- Desacople los microservicios mediante eventos (EventBridge) en lugar de llamadas síncronas directas.
+- Orqueste el flujo de un pedido de forma visual y auditable con Step Functions.
+- Permita integrar canales externos (Rappi) sin modificar el núcleo del backend.
 
-        %% MS-FLUJO-TRABAJO
-        subgraph ms_flujo [🔄 ms-flujo-trabajo]
-            direction TB
-            AGW_flujo["🌐 API Gateway (REST)<br/>• POST /flujo-trabajo/completar<br/>• GET /flujo-trabajo/{pedidoId}"]:::aws_apigw
-            
-            subgraph Lambdas_Flujo [⚙️ Lambdas ms-flujo-trabajo]
-                L_comp("⚙️ completarEtapa"):::aws_lambda
-                L_save("⚙️ guardarTaskToken"):::aws_lambda
-                L_ofluj("⚙️ obtenerFlujo"):::aws_lambda
-            end
+## 🏗 Arquitectura general
 
-            DDB_flujo[("🗄️ DynamoDB<br/>• MrSushiFlujoTrabajo")]:::aws_ddb
+<div align="center">
+  <img src="arqui.png" alt="Diagrama de arquitectura Mr Sushi" width="100%" />
+</div>
 
-            AGW_flujo --> L_comp & L_ofluj
-            L_save --> DDB_flujo
-            L_comp & L_ofluj --> DDB_flujo
-        end
+El sistema combina servicios administrados de AWS con una función externa en Google Cloud:
 
-        %% EVENTBRIDGE
-        subgraph EB_Bus [🚌 INTEGRACIÓN ASÍNCRONA - EventBridge]
-            EB_Custom{{"🚌 Bus de Eventos Personalizado:<br/><b>mrsushi-bus</b>"}}:::aws_eb
-        end
+| Servicio | Rol dentro de la arquitectura |
+|---|---|
+| **AWS Amplify** | Aloja y publica los dos frontends (clientes y trabajadores). |
+| **API Gateway** | Expone los endpoints HTTP de cada microservicio. |
+| **AWS Lambda** | Ejecuta la lógica de negocio de cada microservicio (Node.js 18.x). |
+| **DynamoDB** | Almacena usuarios, clientes, pedidos, sedes y flujo de trabajo. |
+| **EventBridge** | Bus de eventos que desacopla la creación de pedidos de su orquestación. |
+| **Step Functions** | Orquesta las etapas del pedido usando `waitForTaskToken`. |
+| **S3** | Almacena los recibos generados al finalizar cada pedido. |
+| **Google Cloud Function** | Simula la integración externa con Rappi (`rappiWebhook`). |
 
-        %% WORKFLOW STEP FUNCTIONS
-        subgraph SFN_Orquestador [🔄 WORKFLOW ORQUESTADO - Step Functions]
-            SFN_State(("🔄 Máquina de Estados<br/>(mrsushi-pedido-flow)")):::aws_sfn
-            
-            S_Recibido["📥 PEDIDO RECIBIDO"]:::aws_sfn
-            S_Coccion["🍳 COCCIÓN (Cocinero)<br/><i>waitForTaskToken</i>"]:::aws_sfn
-            S_Empacado["🥡 EMPAQUETADO (Despacho)<br/><i>waitForTaskToken</i>"]:::aws_sfn
-            S_Reparto["🛵 EN REPARTO (Reparto)<br/><i>waitForTaskToken</i>"]:::aws_sfn
-            S_Entregado["🏁 ENTREGADO"]:::aws_sfn
+## 🛠 Tecnologías utilizadas
 
-            SFN_State --> S_Recibido --> S_Coccion --> S_Empacado --> S_Reparto --> S_Entregado
-        end
+| Categoría | Tecnologías |
+|---|---|
+| **Frontend** | HTML5, CSS3, JavaScript (sitio de clientes) · React 19 + Vite (panel de trabajadores) |
+| **Backend** | Node.js 18.x, AWS Lambda, Serverless Framework, JWT (`jsonwebtoken`), `bcryptjs` |
+| **Base de datos** | Amazon DynamoDB (tablas `PAY_PER_REQUEST` con índices GSI) |
+| **Orquestación** | AWS Step Functions (`serverless-step-functions`) |
+| **Eventos** | Amazon EventBridge (bus personalizado `mrsushi-bus`) |
+| **Almacenamiento** | Amazon S3 |
+| **Multinube** | Google Cloud Functions + Terraform (proveedores `google`, `archive`) |
+| **Despliegue** | AWS Amplify (Hosting manual), Serverless Framework CLI, Terraform + gcloud |
 
-        %% MS-RECIBOS
-        subgraph ms_recibos [📄 ms-recibos]
-            direction TB
-            L_recibo("⚙️ generarRecibo"):::aws_lambda
-            S3_bucket[("📥 Amazon S3 Bucket<br/>mrsushi-recibos-storage-v2-2026")]:::aws_s3
-            
-            L_recibo --> S3_bucket
-        end
-    end
+## 🧩 Microservicios principales
 
-    %% MULTINUBE GCP
-    subgraph GCP_Cloud [☁️ GOOGLE CLOUD PLATFORM - Cloud Function]
-        direction TB
-        GCP_CF("⚡ Cloud Function: rappiWebhook<br/>• Framework: Express.js (GCP Core)"):::gcp_cf
-        GCP_R1("⚡ POST /rappi/pedidos<br/>• Simula compra externa<br/>• Inyecta 'origen: Rappi'"):::gcp_cf
-        GCP_R2("⚡ POST /rappi/estado<br/>• Webhook de terceros<br/>• Recibe actualizaciones"):::gcp_cf
-        
-        GCP_CF --> GCP_R1 & GCP_R2
-    end
-
-    %% INTERACCIONES Y CONEXIONES DE INTEGRACIÓN
-    F1 -.-> |"HTTP Requests"| AGW_ped & AGW_cli & AGW_sed
-    F2 -.-> |"HTTP Requests + JWT"| AGW_auth & AGW_flujo & AGW_ped & AGW_sed
-
-    GCP_R1 -- "Reenvía Pedido (HTTP POST)" --> AGW_ped
-    L_cped -- "PutEvents (SDK)" --> EB_Custom
-    EB_Custom -- "Dispara inicio" --> SFN_State
-
-    %% Callback logic
-    S_Coccion & S_Empacado & S_Reparto -.-> |"1. Invoca y envía Token"| L_save
-    L_comp -- "2. SendTaskSuccess (SDK)" --> SFN_State
-    L_comp -- "3. Notifica Estado (HTTP POST)" --> GCP_R2
-
-    S_Entregado -- "Emite: PedidoCompletado" --> EB_Custom
-    EB_Custom -- "Regla EventBridge" --> L_recibo
-```
-
-### Backend: 7 microservicios independientes (`mrsushi-backend/`)
-
-Cada carpeta `ms-*` representa un servicio en Serverless Framework, con su respectivo archivo `serverless.yml`, tablas asociadas en Amazon DynamoDB y funciones Lambda en ejecución.
-
-| Servicio | Responsabilidad | Endpoints / Disparadores |
-|---|---|---|
-| `ms-sedes` | Registro de las 8 sedes físicas (coordenadas geográficas y radio de cobertura). | `GET /sedes` |
-| `ms-autenticacion` | Control de credenciales de trabajadores. Permite registrar trabajadores atados a una sede específica. | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `GET /auth/workers` |
-| `ms-clientes` | Cuentas globales de clientes. Maneja perfil, direcciones de entrega y saldo en el programa Neki Puntos. | `POST /clientes/register`, `POST /clientes/login`, `GET /clientes/me`, `PATCH /clientes/me`, `POST/GET /clientes/me/direcciones`, `GET /clientes/me/neki-puntos`, `PATCH /clientes/{clienteId}/neki-puntos` |
-| `ms-pedidos` | Recepción, validación espacial de la sede de destino y creación de pedidos. Emite evento inicial a EventBridge. | `POST /pedidos`, `GET /pedidos/{pedidoId}`, `GET /pedidos` |
-| `ms-flujo-trabajo` | Centraliza el avance de las etapas del pedido y reanuda el orquestador. | `POST /flujo-trabajo/completar`, `GET /flujo-trabajo/{pedidoId}` |
-| `ms-stepfunctions` | Orquesta de manera reactiva el flujo del pedido por medio de Step Functions. | (Orquestado internamente sin API REST propia) |
-| `ms-recibos` | Escucha la finalización de los pedidos en EventBridge y genera de forma asíncrona recibos inmutables en S3. | (Disparador: Regla de EventBridge ante `PedidoCompletado`) |
-
-### Flujo del Pedido (AWS Step Functions)
-
-```text
-RECIBIDO
-   │
-   ▼
-COCCIÓN (Cocinero) ◄────────── Espera mediante Task Token
-   │
-   ▼
-EMPAQUETADO (Despachador) ◄─── Espera mediante Task Token
-   │
-   ├── si es "para llevar" ──► LISTO PARA RECOGER ──► ENTREGADO
-   │
-   └── si es delivery ────────► EN REPARTO (Repartidor) ──► ENTREGADO
-```
-
-Cada etapa del flujo de trabajo utiliza la integración optimizada `waitForTaskToken`. La ejecución se pausa y se reanuda únicamente cuando el trabajador autorizado presiona "Completar" en el panel frontend de la sede.
-
-### Modelo de Datos (DynamoDB)
-
-Todas las tablas están diseñadas con claves descriptivas para facilitar la lectura directa de los registros sin recurrir a estructuras genéricas PK/SK.
-
-| Tabla | Partition Key | Sort Key | Índices Secundarios (GSI) |
+| Microservicio | Responsabilidad | Servicios AWS/GCP usados | Datos principales |
 |---|---|---|---|
-| `MrSushiSedes` | `sedeId` | — | — |
-| `MrSushiUsuarios` | `sedeId` | `email` | — |
-| `MrSushiUsuarioEmailLocks` | `email` | — | — |
-| `MrSushiClientes` | `clienteId` | `itemType` (`PERFIL` / `DIRECCION#{id}`) | — |
-| `MrSushiClienteEmailLocks` | `email` | — | — |
-| `MrSushiPedidos` | `sedeId` | `pedidoId` | `ClienteIndex` (clienteId+createdAt), `SedeCreatedIndex` (sedeId+createdAt) |
-| `MrSushiContadores` | `sedeId` | `fecha` | — |
-| `MrSushiFlujoTrabajo` | `pedidoId` | `step` | — |
+| `ms-autenticacion` | Registro y login de trabajadores, emisión de JWT y consulta de perfil. | API Gateway, Lambda, DynamoDB | `MrSushiUsuarios`, `MrSushiUsuarioEmailLocks` |
+| `ms-pedidos` | Creación, consulta y listado de pedidos. Publica el evento inicial del flujo. | API Gateway, Lambda, DynamoDB, EventBridge | `MrSushiPedidos`, `MrSushiContadores` |
+| `ms-clientes` | Cuentas de clientes, direcciones de entrega y programa de puntos (Neki Puntos). | API Gateway, Lambda, DynamoDB | `MrSushiClientes`, `MrSushiClienteEmailLocks` |
+| `ms-sedes` | Registro de sedes físicas (coordenadas y radio de cobertura). | API Gateway, Lambda, DynamoDB | `MrSushiSedes` |
+| `ms-flujo-trabajo` | Avance de etapas del pedido y reanudación de Step Functions vía Task Token. | API Gateway, Lambda, DynamoDB, Step Functions (SDK) | `MrSushiFlujoTrabajo` |
+| `ms-recibos` | Genera el recibo final del pedido al recibir el evento `PedidoCompletado`. | Lambda, EventBridge, S3 | Archivos `.txt` en `mrsushi-recibos-storage-v2-2026` |
+| `ms-stepfunctions` | Define la máquina de estados que orquesta el flujo completo del pedido. | Step Functions, EventBridge | Estado interno de ejecución (sin tabla propia) |
+| Cloud Function `rappiWebhook` | Simula un agregador externo (Rappi) que envía pedidos y recibe actualizaciones de estado. | Google Cloud Functions, Terraform | N/A (reenvía HTTP hacia `ms-pedidos`) |
 
-### Aislamiento entre Sedes
+## 🔄 Flujo del pedido
 
-- **Validación del lado del servidor:** Los trabajadores solo pueden ver y operar los pedidos asociados a su sede. El valor `sedeId` se extrae de manera segura del token JWT en el backend, evitando manipulaciones externas en el frontend.
-- **Geolocalización Automática:** Cuando un pedido entra por delivery, el backend (`ms-pedidos`) calcula la sede activa más cercana al cliente utilizando su ubicación. Si la distancia excede el radio de cobertura (`coverageRadius`) de todas las sedes, el pedido se cancela automáticamente.
-- **Locks de Correo:** Para login, las tablas de "locks" por email resuelven de forma unívoca a qué sede o cuenta de cliente pertenece el usuario de manera previa a la verificación criptográfica de la clave.
+1. El cliente crea un pedido desde la aplicación web.
+2. El pedido entra por **API Gateway**.
+3. La Lambda `crearPedido` (`ms-pedidos`) valida y registra el pedido.
+4. El pedido se guarda en **DynamoDB** (`MrSushiPedidos`).
+5. Se publica un evento `PedidoCreado` en **EventBridge** (`mrsushi-bus`).
+6. Una regla de EventBridge inicia la máquina de estados **Step Functions** (`mrsushi-flujo-pedido`).
+7. Step Functions orquesta las etapas del pedido:
+   - 📥 Pedido recibido
+   - 🍳 Cocción
+   - 🥡 Empaquetado
+   - 🛵 En reparto (o listo para recoger, si aplica)
+   - 🏁 Entregado
+8. Los trabajadores completan cada etapa desde el dashboard interno (`mrsushi-frontend-trabajadores`).
+9. `ms-flujo-trabajo` responde a Step Functions usando `SendTaskSuccess`, reanudando la ejecución pausada.
+10. Al finalizar el pedido, se emite el evento `PedidoCompletado`, `ms-recibos` genera un recibo y lo almacena en **S3**.
+11. Si el pedido viene desde Rappi, la Cloud Function de GCP reenvía el pedido al backend (AWS) y recibe actualizaciones de estado vía webhook.
 
-## Frontends
+## 🌐 Integración multinube con GCP/Rappi
 
-### 1. Panel de Personal (`frontend-trabajadores/`)
-Aplicación SPA en **React 19 + Vite** desplegada de manera manual en AWS Amplify. Muestra en tiempo real las colas de pedidos segmentadas por el rol del trabajador autenticado (Cocinero, Despacho, Repartidor), con dashboards gráficos de métricas operacionales para administradores.
+La Cloud Function `rappiWebhook` (Node.js/Express, desplegada con Terraform en GCP) simula la relación con un agregador de delivery externo:
 
-Variables de entorno configuradas:
+| Ruta | Dirección | Descripción |
+|---|---|---|
+| `POST /rappi/pedidos` | GCP → AWS | Simula una compra hecha desde la app de Rappi; agrega `origen: "Rappi"` y reenvía el pedido al endpoint `POST /pedidos` de `ms-pedidos`. |
+| `POST /rappi/estado` | AWS → GCP | Webhook que recibe actualizaciones de estado del pedido enviadas por `ms-flujo-trabajo`. |
+
+Este diseño demuestra cómo un sistema puede recibir pedidos de canales externos sin modificar su lógica interna, tratando a Rappi como un cliente más de la API de `ms-pedidos`.
+
+## 📂 Estructura del repositorio
+
 ```text
-VITE_AUTH_API_URL=...      # ms-autenticacion
-VITE_PEDIDOS_API_URL=...   # ms-pedidos
-VITE_FLUJO_API_URL=...     # ms-flujo-trabajo
-VITE_SEDES_API_URL=...     # ms-sedes
+mr-sushi/
+├── api-rappi-gcp/                  Cloud Function (GCP) que simula la integración con Rappi
+│   ├── index.js
+│   ├── server.js
+│   ├── main.tf                     Infraestructura como código (Terraform)
+│   └── package.json
+├── docs/
+│   └── informe.typ                 Informe técnico del proyecto (Typst)
+├── mrsushi-backend/                Backend serverless en AWS
+│   ├── ms-autenticacion/
+│   ├── ms-clientes/
+│   ├── ms-flujo-trabajo/
+│   ├── ms-pedidos/
+│   ├── ms-recibos/
+│   ├── ms-sedes/
+│   ├── ms-stepfunctions/
+│   └── package.json                 Scripts de instalación y despliegue conjunto
+├── mrsushi-frontend-clientes/       Sitio web estático para clientes (HTML/CSS/JS)
+│   ├── src/
+│   ├── images/
+│   └── *.html
+├── mrsushi-frontend-trabajadores/   Panel interno para trabajadores (React + Vite)
+│   ├── src/
+│   └── package.json
+├── arqui.png                        Diagrama de arquitectura del sistema
+├── Rappi_Simulator.postman_collection.json
+└── README.md
 ```
 
-### 2. Portal de Clientes (`mrsushi_clientes/`)
-Sitio web estático en **HTML5/CSS3/Vanilla JS** sin proceso de compilación, desplegado en AWS Amplify. Permite realizar pedidos, registrar direcciones con geolocalización de coordenadas en un mapa interactivo y acumular Neki Puntos.
+## ⚙️ Instalación y ejecución
 
-Configuración en `src/js/api-config.js` (variables globales `window.MR_SUSHI_*`).
+### Backend (AWS)
 
-## Despliegue de Infraestructura
-
-### Despliegue de Backend (AWS)
-Requiere tener configuradas las credenciales de AWS CLI y Serverless Framework instalado de manera global.
 ```bash
 cd mrsushi-backend
 npm run install:all
-npm run deploy:all         # Despliega los 7 microservicios en orden correlativo
-node ms-sedes/seed.js      # Siembra inicial de las 8 sedes físicas (ejecutar una vez)
 ```
 
-### Despliegue de Webhook (GCP)
-Requiere tener inicializado Terraform y gcloud CLI configurado en el proyecto.
+### Panel de trabajadores (React + Vite)
+
+```bash
+cd mrsushi-frontend-trabajadores
+npm install
+npm run dev       # entorno de desarrollo
+npm run build     # build de producción
+npm run preview   # previsualizar build
+```
+
+### Sitio de clientes
+
+Sitio estático sin proceso de build. Basta con abrir `mrsushi-frontend-clientes/index.html` o servirlo con cualquier servidor estático. La configuración de endpoints se define en [`src/js/api-config.js`](mrsushi-frontend-clientes/src/js/api-config.js).
+
+### Cloud Function (GCP)
+
+```bash
+cd api-rappi-gcp
+npm install
+node server.js   # levanta el simulador en local (puerto 3000) usando server.js
+```
+
+## 🔐 Variables de entorno
+
+| Variable | Descripción | Obligatoria | Ejemplo |
+|---|---|---|---|
+| `JWT_SECRET` | Secreto usado para firmar tokens JWT en `ms-autenticacion` y `ms-clientes`. | No (tiene valor por defecto en `serverless.yml`) | `mi-secreto-super-seguro` |
+| `VITE_AUTH_API_URL` | URL base del API Gateway de `ms-autenticacion` (frontend trabajadores). | Sí | `https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com` |
+| `VITE_PEDIDOS_API_URL` | URL base del API Gateway de `ms-pedidos` (frontend trabajadores). | Sí | `https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com` |
+| `VITE_FLUJO_API_URL` | URL base del API Gateway de `ms-flujo-trabajo` (frontend trabajadores). | Sí | `https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com` |
+| `VITE_SEDES_API_URL` | URL base del API Gateway de `ms-sedes` (frontend trabajadores). | Sí | `https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com` |
+| `MR_SUSHI_CLIENTES_API_URL` | URL base del API Gateway de `ms-clientes` (frontend clientes, definida en `window`). | Sí | `https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com` |
+| `MR_SUSHI_PEDIDOS_API_URL` | URL base del API Gateway de `ms-pedidos` (frontend clientes, definida en `window`). | Sí | `https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com` |
+
+> Los valores reales de ejemplo se encuentran documentados en [`mrsushi-frontend-trabajadores/.env.example`](mrsushi-frontend-trabajadores/.env.example) y en [`mrsushi-frontend-clientes/src/js/api-config.js`](mrsushi-frontend-clientes/src/js/api-config.js). No se muestran URLs de producción reales en esta tabla.
+
+## 🔌 Endpoints principales
+
+| Método | Endpoint | Microservicio | Descripción |
+|---|---|---|---|
+| `POST` | `/auth/register` | `ms-autenticacion` | Registra un trabajador asociado a una sede. |
+| `POST` | `/auth/login` | `ms-autenticacion` | Inicia sesión y emite un JWT. |
+| `GET` | `/auth/me` | `ms-autenticacion` | Devuelve el perfil del trabajador autenticado. |
+| `GET` | `/auth/workers` | `ms-autenticacion` | Lista los trabajadores registrados. |
+| `POST` | `/pedidos` | `ms-pedidos` | Crea un nuevo pedido y publica el evento `PedidoCreado`. |
+| `GET` | `/pedidos` | `ms-pedidos` | Lista pedidos. |
+| `GET` | `/pedidos/{pedidoId}` | `ms-pedidos` | Consulta el detalle de un pedido. |
+| `POST` | `/clientes/register` | `ms-clientes` | Registra una cuenta de cliente. |
+| `POST` | `/clientes/login` | `ms-clientes` | Inicia sesión de cliente. |
+| `GET` | `/clientes/me` | `ms-clientes` | Consulta el perfil del cliente. |
+| `PATCH` | `/clientes/me` | `ms-clientes` | Actualiza el perfil del cliente. |
+| `POST` | `/clientes/me/direcciones` | `ms-clientes` | Agrega una dirección de entrega. |
+| `GET` | `/clientes/me/direcciones` | `ms-clientes` | Lista direcciones del cliente. |
+| `GET` | `/clientes/me/neki-puntos` | `ms-clientes` | Consulta el saldo de puntos. |
+| `PATCH` | `/clientes/{clienteId}/neki-puntos` | `ms-clientes` | Ajusta el saldo de puntos de un cliente. |
+| `GET` | `/sedes` | `ms-sedes` | Lista las sedes físicas registradas. |
+| `POST` | `/flujo-trabajo/completar` | `ms-flujo-trabajo` | Marca como completada la etapa actual del pedido. |
+| `GET` | `/flujo-trabajo/{pedidoId}` | `ms-flujo-trabajo` | Consulta el estado del flujo de un pedido. |
+| `POST` | `/rappi/pedidos` | Cloud Function `rappiWebhook` | Simula una compra desde Rappi y la reenvía a `ms-pedidos`. |
+| `POST` | `/rappi/estado` | Cloud Function `rappiWebhook` | Recibe actualizaciones de estado del pedido. |
+
+## 📦 Despliegue
+
+### ☁️ AWS (nube principal)
+
+**Backend** — cada `ms-*` es un servicio independiente de Serverless Framework. `deploy:all` despliega los 7 microservicios en orden correlativo (`sedes → auth → clientes → flujo → stepfunctions → pedidos`), ya que `ms-stepfunctions` referencia por ARN una Lambda de `ms-flujo-trabajo`:
+
+```bash
+cd mrsushi-backend
+npm run install:all
+npm run deploy:all
+node ms-sedes/seed.js   # siembra inicial de las 8 sedes (una sola vez)
+```
+
+Como parte de ese despliegue se crean automáticamente:
+- **Tablas DynamoDB** (stack de CloudFormation de cada `serverless.yml`).
+- **Máquina de estados** de Step Functions (`ms-stepfunctions`, vía plugin `serverless-step-functions`).
+- **Bus de eventos** `mrsushi-bus` y sus reglas (`ms-stepfunctions` y `ms-recibos`).
+
+**Frontends** — no usan CI/CD conectado a Git; se empaquetan manualmente en `.zip` y se suben por consola a **AWS Amplify** (Hosting → "Deploy without Git"), una app de Amplify por frontend:
+
+```bash
+# Panel de trabajadores (requiere build)
+cd mrsushi-frontend-trabajadores && npm install && npm run build
+cd dist && zip -r ../mrsushi-trabajadores-amplify.zip . -x ".*"
+
+# Sitio de clientes (estático, sin build)
+cd mrsushi-frontend-clientes && zip -r mrsushi-clientes-amplify.zip . -x ".git/*" -x "*.zip"
+```
+
+### 🌐 Google Cloud (nube secundaria — simulador de Rappi)
+
+La Cloud Function `rappiWebhook` se despliega con **Terraform** (no Serverless Framework). `main.tf` habilita las APIs necesarias (`cloudfunctions`, `cloudbuild`, `artifactregistry`), empaqueta `index.js` + `package.json` en un `.zip`, lo sube a un bucket de Cloud Storage y crea la función pública `rappi-simulator` (runtime `nodejs20`, trigger HTTP, invocable por `allUsers`):
+
 ```bash
 cd api-rappi-gcp
 terraform init
 terraform apply -auto-approve
 ```
 
-### Empaquetado Manual para AWS Amplify (Frontends)
-Ambos frontends se compilan y empaquetan en archivos `.zip` antes de subirse manualmente a la consola de AWS Amplify (Hosting → "Deploy without Git"):
-```bash
-# 1. Empaquetado de panel de trabajadores (React)
-cd frontend-trabajadores && npm install && npm run build
-cd dist && zip -r ../mrsushi-trabajadores-amplify.zip . -x ".*"
+### Diferencias entre ambos despliegues
 
-# 2. Empaquetado de sitio de clientes (HTML estático)
-cd mrsushi_clientes && zip -r mrsushi-clientes-amplify.zip . -x ".git/*" -x "*.zip"
-```
+| | AWS | GCP |
+|---|---|---|
+| Herramienta | Serverless Framework | Terraform |
+| Unidad de despliegue | 7 stacks independientes (uno por microservicio) | 1 función |
+| Frontends | Sí (Amplify, manual) | No aplica |
+| Rol de la nube | Núcleo del sistema (todo el negocio) | Simula un cliente externo (Rappi) que llama a la API de AWS |
+
+## 📊 Estado actual del proyecto
+
+- ✅ 7 microservicios AWS operativos (`ms-autenticacion`, `ms-clientes`, `ms-sedes`, `ms-pedidos`, `ms-flujo-trabajo`, `ms-stepfunctions`, `ms-recibos`).
+- ✅ Flujo de pedido orquestado end-to-end con Step Functions y Task Tokens.
+- ✅ Integración multinube funcional con Google Cloud Function (`rappiWebhook`).
+- ✅ Dos frontends desplegados en AWS Amplify (clientes y trabajadores).
+- ⚠️ Sin suite de pruebas automatizada: el backend solo cuenta con verificación de sintaxis (`npm run check:syntax`).
+
+## 📄 Licencia
+
+Distribuido bajo licencia **ISC**, según lo declarado en los `package.json` del backend (`mrsushi-backend`, `ms-recibos`, `ms-stepfunctions`).
+
+---
+
+## 🎓 Uso para presentación
+
+Resumen copiable para diapositivas:
+
+- **Idea principal**: sistema serverless multinube para la gestión de pedidos de la cadena Mr Sushi.
+- **Problema**: coordinar pedidos de múltiples canales y sedes sin infraestructura fija ni acoplamiento entre servicios.
+- **Solución propuesta**: microservicios independientes en AWS (Lambda + API Gateway + DynamoDB) coordinados por eventos (EventBridge) y orquestados por una máquina de estados (Step Functions).
+- **Arquitectura**: AWS Amplify (frontends) + API Gateway + Lambda + DynamoDB + EventBridge + Step Functions + S3, integrados con una Cloud Function en Google Cloud.
+- **Flujo del pedido**: creación → validación → registro en DynamoDB → evento en EventBridge → orquestación en Step Functions (cocción, empaquetado, reparto) → entrega → recibo en S3.
+- **Integración multinube**: Google Cloud Function `rappiWebhook` simula un agregador externo, reenviando pedidos hacia AWS y recibiendo actualizaciones de estado.
+- **Beneficios**: costo por uso, escalabilidad automática, bajo acoplamiento entre servicios y trazabilidad completa del ciclo de vida del pedido.
+
+<div align="center">
+
+Desarrollado por Rafael Choque Coaquira, Gerald Borjas Bernaola y Francis Huerta Roque
+
+</div>
