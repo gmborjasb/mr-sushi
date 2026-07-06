@@ -1,9 +1,9 @@
 // Configuración General del Documento (Typst)
-#set document(title: "Informe Técnico - Mr. Sushi", author: ("Choque", "Borjas", "Huerta"))
+#set document(title: "Informe - Mr. Sushi", author: ("Choque", "Borjas", "Huerta"))
 #set page(
   paper: "a4",
   margin: (x: 2.5cm, top: 3cm, bottom: 2.5cm),
-  header: align(right, text(8pt, fill: luma(120), font: ("Fira Sans", "Arial", "sans-serif"))[Informe Técnico - Proyecto Mr. Sushi]),
+  header: align(right, text(8pt, fill: luma(120), font: ("Fira Sans", "Arial", "sans-serif"))[Informe - Proyecto Mr. Sushi]),
   footer: context {
     let page_number = counter(page).get().first()
     let total_pages = counter(page).final().first()
@@ -68,13 +68,17 @@
 
 // --- CONTENIDO ---
 
-= Resumen Ejecutivo
+= Resumen 
 El presente documento detalla la arquitectura de software implementada para la cadena de restaurantes "Mr. Sushi". La solución ha sido diseñada bajo un modelo de arquitectura serverless nativa, orientada a eventos (EDA) e híbrida multi-nube. 
 
 El sistema gestiona de forma aislada las operaciones de 8 sedes físicas (comportándose como un esquema multi-tenant), mientras mantiene consolidados los datos de usuarios clientes globales y su programa de lealtad (Neki Puntos). La infraestructura backend corre principalmente sobre Amazon Web Services (AWS) utilizando el Serverless Framework para la orquestación del ciclo de vida, mientras que la integración con servicios de terceros (Rappi) se simula mediante una arquitectura en Google Cloud Platform (GCP) orquestada a través de Terraform.
 
 = Estructura General del Repositorio
-La base del código del proyecto se encuentra estructurada de manera modular en cuatro directorios raíz:
+La base de la solución completa se encuentra estructurada de manera modular en cuatro directorios raíz. El código fuente oficial, control de versiones e histórico de despliegues se encuentra disponible públicamente en el repositorio de GitHub:
+
+#align(center)[
+  *#link("https://github.com/gmborjasb/mr-sushi")[github.com/gmborjasb/mr-sushi]*
+]
 
 - *`mrsushi-backend/`*: Contiene la totalidad de la lógica serverless en AWS, dividida en 7 microservicios independientes, cada uno provisto de su propia base de datos NoSQL y configuración de infraestructura en la nube.
 - *`frontend-trabajadores/`*: Aplicación de Panel de Control SPA desarrollada sobre *React 19* y *Vite*, utilizada por cocineros, despachadores y repartidores.
@@ -82,16 +86,24 @@ La base del código del proyecto se encuentra estructurada de manera modular en 
 - *`api-rappi-gcp/`*: Código fuente e infraestructura como código (Terraform) de la API externa desplegada sobre Google Cloud Platform.
 
 = Arquitectura del Sistema
-La arquitectura del sistema descansa sobre dos pilares tecnológicos principales: el desacoplamiento estricto a través de eventos y la orquestación asíncrona de flujos humanos.
+La arquitectura del sistema descansa sobre dos pilares tecnológicos principales: el desacoplamiento estricto a través de eventos y la orquestación asíncrona de flujos.
 
 == Diagrama de Arquitectura
 A continuación, se detalla el diagrama lógico que describe el enrutamiento de peticiones síncronas (REST/HTTP) y la distribución asíncrona de eventos a través del bus personalizado:
 
-// Placeholder de Imagen de Arquitectura (Reemplazar ruta cuando pongas la imagen en la carpeta docs/images/)
 #align(center)[
   #image("images/arquitectura.png", width: 100%)
   #v(0.5em)
   #text(9pt, style: "italic", fill: luma(100))[Figura 1: Diagrama de Arquitectura de Solución Híbrida (AWS + GCP)]
+]
+
+== Flujo de Orquestación y Estados (Diagrama de Secuencia)
+El siguiente diagrama secuencial detalla cómo interactúan los componentes en la nube a lo largo del ciclo de vida de un pedido:
+
+#align(center)[
+  #image("images/mermaid_diagram.png", width: 100%)
+  #v(0.5em)
+  #text(9pt, style: "italic", fill: luma(100))[Figura 2: Secuencia asíncrona de orquestación de eventos y estados]
 ]
 
 == Componentes y Orquestación en AWS
@@ -184,32 +196,61 @@ A continuación, se presentan las capturas de pantalla tomadas directamente de l
 ]
 #v(1em)
 
-// Evidencia 2: Trabajadores
-#align(center)[
-  #block(stroke: luma(200), inset: 10pt, radius: 4pt)[
-    #text(10pt, style: "italic")[Evidencia 2: Panel SPA de Trabajadores (React / Vite)]\
-    #v(0.5em)
-    // #image("images/trabajadores.png", width: 85%)
+== Panel de Control de Trabajadores (React / Vite)
+
+#grid(
+  columns: (1fr, 1fr),
+  gutter: 1cm,
+  [
+    #image("images/trabajadores_dashboard.png", width: 100%)
+    #align(center)[#text(8pt, style: "italic")[Centro de mando y resumen métrico diario]]
+  ],
+  [
+    #image("images/trabajadores_cocina.png", width: 100%)
+    #align(center)[#text(8pt, style: "italic")[Cola de pedidos activa en Cocina]]
   ]
+)
+
+== Orquestación y Máquina de Estados (AWS Step Functions)
+
+#align(center)[
+  #image("images/stepfunctions.png", width: 90%)
+  #v(0.2em)
+  #text(8pt, style: "italic")[Grafo de definición y estados del flujo del pedido en Step Functions (Consola AWS)]
 ]
 
-// Evidencia 3: Step Functions
+== Integración y Logs en Google Cloud Platform (GCP Webhook)
+
 #align(center)[
-  #block(stroke: luma(200), inset: 10pt, radius: 4pt)[
-    #text(10pt, style: "italic")[Evidencia 3: Ejecución de Step Functions (Consola de AWS)]\
-    #v(0.5em)
-    // #image("images/stepfunctions.png", width: 85%)
-  ]
+  #image("images/gcp_logs.png", width: 90%)
+  #v(0.2em)
+  #text(8pt, style: "italic")[Logs en tiempo real de Google Cloud Run Functions recibiendo y validando las peticiones POST de AWS]
 ]
 
-// Evidencia 4: S3 Bucket
-#align(center)[
-  #block(stroke: luma(200), inset: 10pt, radius: 4pt)[
-    #text(10pt, style: "italic")[Evidencia 4: Almacenamiento de Comprobantes (.txt) en S3]\
-    #v(0.5em)
-    // #image("images/s3_recibos.png", width: 85%)
+== Almacenamiento de Comprobantes (.txt) en Amazon S3
+
+#grid(
+  columns: (1fr, 1fr),
+  gutter: 1cm,
+  [
+    #image("images/s3_objects.png", width: 100%)
+    #align(center)[#text(8pt, style: "italic")[Registro de recibos guardados en el bucket S3]]
+  ],
+  [
+    #image("images/s3_receipt_content.png", width: 100%)
+    #align(center)[#text(8pt, style: "italic")[Detalle y contenido del archivo de recibo generado]]
   ]
+)
+
+== Integración y Pruebas con Postman
+
+#align(center)[
+  #image("images/postman.png", width: 90%)
+  #v(0.2em)
+  #text(8pt, style: "italic")[Ejecución de llamadas HTTP y pruebas de la colección del simulador de Rappi en Postman]
 ]
+
+
 
 = Conclusiones y Limitaciones
 1. *Escalabilidad Serverless:* Toda la infraestructura backend se ajusta de manera elástica según la concurrencia de clientes. Al no contar con servidores aprovisionados en estado ocioso, el costo operativo de la plataforma se aproxima a cero en horas de baja demanda.

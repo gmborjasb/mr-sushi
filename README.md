@@ -2,7 +2,7 @@
 
   <img src="mrsushi-frontend-clientes/images/branding/mrsushi-logo.png" width="120" alt="Mr Sushi Logo" />
 
-  # 🍣 Mr Sushi Cloud Architecture
+  # Mr Sushi Cloud Architecture
 
   **Sistema serverless multinube para gestión y seguimiento de pedidos**
 
@@ -21,13 +21,20 @@
 
 ---
 
-## 📌 Presentación del proyecto
+**Integrantes del Equipo**
+- Choque Coaquira, Rafael Rodrigo (Código: 202410378)
+- Borjas Bernaola, Gerald Marcelo Fernando (Código: 202510059)
+- Huerta Roque, Francis Andres (Código: 20231053)
+
+---
+
+## Presentación del proyecto
 
 **Mr Sushi Cloud Architecture** es el backend serverless que soporta la operación de pedidos de la cadena de restaurantes Mr Sushi. El sistema administra el ciclo de vida completo de un pedido —desde su creación hasta la entrega— a través de microservicios independientes desplegados en AWS, coordinados mediante eventos y máquinas de estado.
 
 El proyecto integra, además, una nube secundaria (Google Cloud Platform) para simular la llegada de pedidos desde un agregador externo tipo Rappi, demostrando un escenario real de arquitectura **multinube**.
 
-## 🎯 Problema que resuelve
+## Problema que resuelve
 
 Una cadena de restaurantes con múltiples sedes físicas necesita:
 
@@ -36,7 +43,7 @@ Una cadena de restaurantes con múltiples sedes físicas necesita:
 - Aislar la información de cada sede evitando que un trabajador vea u opere pedidos de otra sede.
 - Escalar automáticamente durante picos de demanda sin gestionar infraestructura manualmente.
 
-## 🚀 Objetivo del sistema
+## Objetivo del sistema
 
 Ofrecer una plataforma **100% serverless y event-driven** que:
 
@@ -45,7 +52,7 @@ Ofrecer una plataforma **100% serverless y event-driven** que:
 - Orqueste el flujo de un pedido de forma visual y auditable con Step Functions.
 - Permita integrar canales externos (Rappi) sin modificar el núcleo del backend.
 
-## 🏗 Arquitectura general
+## Arquitectura general
 
 <div align="center">
   <img src="arqui.png" alt="Diagrama de arquitectura Mr Sushi" width="100%" />
@@ -64,7 +71,7 @@ El sistema combina servicios administrados de AWS con una función externa en Go
 | **S3** | Almacena los recibos generados al finalizar cada pedido. |
 | **Google Cloud Function** | Simula la integración externa con Rappi (`rappiWebhook`). |
 
-## 🛠 Tecnologías utilizadas
+## Tecnologías utilizadas
 
 | Categoría | Tecnologías |
 |---|---|
@@ -77,7 +84,7 @@ El sistema combina servicios administrados de AWS con una función externa en Go
 | **Multinube** | Google Cloud Functions + Terraform (proveedores `google`, `archive`) |
 | **Despliegue** | AWS Amplify (Hosting manual), Serverless Framework CLI, Terraform + gcloud |
 
-## 🧩 Microservicios principales
+## Microservicios principales
 
 | Microservicio | Responsabilidad | Servicios AWS/GCP usados | Datos principales |
 |---|---|---|---|
@@ -90,7 +97,7 @@ El sistema combina servicios administrados de AWS con una función externa en Go
 | `ms-stepfunctions` | Define la máquina de estados que orquesta el flujo completo del pedido. | Step Functions, EventBridge | Estado interno de ejecución (sin tabla propia) |
 | Cloud Function `rappiWebhook` | Simula un agregador externo (Rappi) que envía pedidos y recibe actualizaciones de estado. | Google Cloud Functions, Terraform | N/A (reenvía HTTP hacia `ms-pedidos`) |
 
-## 🔄 Flujo del pedido
+## Flujo del pedido
 
 1. El cliente crea un pedido desde la aplicación web.
 2. El pedido entra por **API Gateway**.
@@ -99,17 +106,17 @@ El sistema combina servicios administrados de AWS con una función externa en Go
 5. Se publica un evento `PedidoCreado` en **EventBridge** (`mrsushi-bus`).
 6. Una regla de EventBridge inicia la máquina de estados **Step Functions** (`mrsushi-flujo-pedido`).
 7. Step Functions orquesta las etapas del pedido:
-   - 📥 Pedido recibido
-   - 🍳 Cocción
-   - 🥡 Empaquetado
-   - 🛵 En reparto (o listo para recoger, si aplica)
-   - 🏁 Entregado
+   - Pedido recibido
+   - Cocción
+   - Empaquetado
+   - En reparto (o listo para recoger, si aplica)
+   - Entregado
 8. Los trabajadores completan cada etapa desde el dashboard interno (`mrsushi-frontend-trabajadores`).
 9. `ms-flujo-trabajo` responde a Step Functions usando `SendTaskSuccess`, reanudando la ejecución pausada.
 10. Al finalizar el pedido, se emite el evento `PedidoCompletado`, `ms-recibos` genera un recibo y lo almacena en **S3**.
 11. Si el pedido viene desde Rappi, la Cloud Function de GCP reenvía el pedido al backend (AWS) y recibe actualizaciones de estado vía webhook.
 
-## 🌐 Integración multinube con GCP/Rappi
+## Integración multinube con GCP/Rappi
 
 La Cloud Function `rappiWebhook` (Node.js/Express, desplegada con Terraform en GCP) simula la relación con un agregador de delivery externo:
 
@@ -120,7 +127,7 @@ La Cloud Function `rappiWebhook` (Node.js/Express, desplegada con Terraform en G
 
 Este diseño demuestra cómo un sistema puede recibir pedidos de canales externos sin modificar su lógica interna, tratando a Rappi como un cliente más de la API de `ms-pedidos`.
 
-## 📂 Estructura del repositorio
+## Estructura del repositorio
 
 ```text
 mr-sushi/
@@ -152,7 +159,7 @@ mr-sushi/
 └── README.md
 ```
 
-## ⚙️ Instalación y ejecución
+## Instalación y ejecución
 
 ### Backend (AWS)
 
@@ -183,7 +190,7 @@ npm install
 node server.js   # levanta el simulador en local (puerto 3000) usando server.js
 ```
 
-## 🔐 Variables de entorno
+## Variables de entorno
 
 | Variable | Descripción | Obligatoria | Ejemplo |
 |---|---|---|---|
@@ -197,7 +204,7 @@ node server.js   # levanta el simulador en local (puerto 3000) usando server.js
 
 > Los valores reales de ejemplo se encuentran documentados en [`mrsushi-frontend-trabajadores/.env.example`](mrsushi-frontend-trabajadores/.env.example) y en [`mrsushi-frontend-clientes/src/js/api-config.js`](mrsushi-frontend-clientes/src/js/api-config.js). No se muestran URLs de producción reales en esta tabla.
 
-## 🔌 Endpoints principales
+## Endpoints principales
 
 | Método | Endpoint | Microservicio | Descripción |
 |---|---|---|---|
@@ -222,9 +229,9 @@ node server.js   # levanta el simulador en local (puerto 3000) usando server.js
 | `POST` | `/rappi/pedidos` | Cloud Function `rappiWebhook` | Simula una compra desde Rappi y la reenvía a `ms-pedidos`. |
 | `POST` | `/rappi/estado` | Cloud Function `rappiWebhook` | Recibe actualizaciones de estado del pedido. |
 
-## 📦 Despliegue
+## Despliegue
 
-### ☁️ AWS (nube principal)
+### AWS (nube principal)
 
 **Backend** — cada `ms-*` es un servicio independiente de Serverless Framework. `deploy:all` despliega los 7 microservicios en orden correlativo (`sedes → auth → clientes → flujo → stepfunctions → pedidos`), ya que `ms-stepfunctions` referencia por ARN una Lambda de `ms-flujo-trabajo`:
 
@@ -251,7 +258,7 @@ cd dist && zip -r ../mrsushi-trabajadores-amplify.zip . -x ".*"
 cd mrsushi-frontend-clientes && zip -r mrsushi-clientes-amplify.zip . -x ".git/*" -x "*.zip"
 ```
 
-### 🌐 Google Cloud (nube secundaria — simulador de Rappi)
+### Google Cloud (nube secundaria — simulador de Rappi)
 
 La Cloud Function `rappiWebhook` se despliega con **Terraform** (no Serverless Framework). `main.tf` habilita las APIs necesarias (`cloudfunctions`, `cloudbuild`, `artifactregistry`), empaqueta `index.js` + `package.json` en un `.zip`, lo sube a un bucket de Cloud Storage y crea la función pública `rappi-simulator` (runtime `nodejs20`, trigger HTTP, invocable por `allUsers`):
 
@@ -270,22 +277,15 @@ terraform apply -auto-approve
 | Frontends | Sí (Amplify, manual) | No aplica |
 | Rol de la nube | Núcleo del sistema (todo el negocio) | Simula un cliente externo (Rappi) que llama a la API de AWS |
 
-## 📊 Estado actual del proyecto
+## Estado actual del proyecto
 
-- ✅ 7 microservicios AWS operativos (`ms-autenticacion`, `ms-clientes`, `ms-sedes`, `ms-pedidos`, `ms-flujo-trabajo`, `ms-stepfunctions`, `ms-recibos`).
-- ✅ Flujo de pedido orquestado end-to-end con Step Functions y Task Tokens.
-- ✅ Integración multinube funcional con Google Cloud Function (`rappiWebhook`).
-- ✅ Dos frontends desplegados en AWS Amplify (clientes y trabajadores).
-- ⚠️ Sin suite de pruebas automatizada: el backend solo cuenta con verificación de sintaxis (`npm run check:syntax`).
+- 7 microservicios AWS operativos (`ms-autenticacion`, `ms-clientes`, `ms-sedes`, `ms-pedidos`, `ms-flujo-trabajo`, `ms-stepfunctions`, `ms-recibos`).
+- Flujo de pedido orquestado end-to-end con Step Functions y Task Tokens.
+- Integración multinube funcional con Google Cloud Function (`rappiWebhook`).
+- Dos frontends desplegados en AWS Amplify (clientes y trabajadores).
+- Sin suite de pruebas automatizada: el backend solo cuenta con verificación de sintaxis (`npm run check:syntax`).
 
-## 📄 Licencia
+## Licencia
 
 Distribuido bajo licencia **ISC**, según lo declarado en los `package.json` del backend (`mrsushi-backend`, `ms-recibos`, `ms-stepfunctions`).
 
----
-
-<div align="center">
-
-Desarrollado por Rafael Choque Coaquira, Gerald Borjas Bernaola y Francis Huerta Roque
-
-</div>
