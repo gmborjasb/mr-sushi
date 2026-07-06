@@ -277,14 +277,6 @@ terraform apply -auto-approve
 | Frontends | Sí (Amplify, manual) | No aplica |
 | Rol de la nube | Núcleo del sistema (todo el negocio) | Simula un cliente externo (Rappi) que llama a la API de AWS |
 
-## Estado actual del proyecto
-
-- 7 microservicios AWS operativos (`ms-autenticacion`, `ms-clientes`, `ms-sedes`, `ms-pedidos`, `ms-flujo-trabajo`, `ms-stepfunctions`, `ms-recibos`).
-- Flujo de pedido orquestado end-to-end con Step Functions y Task Tokens.
-- Integración multinube funcional con Google Cloud Function (`rappiWebhook`).
-- Dos frontends desplegados en AWS Amplify (clientes y trabajadores).
-- Sin suite de pruebas automatizada: el backend solo cuenta con verificación de sintaxis (`npm run check:syntax`).
-
 ## Licencia
 
 Distribuido bajo licencia **ISC**, según lo declarado en los `package.json` del backend (`mrsushi-backend`, `ms-recibos`, `ms-stepfunctions`).
